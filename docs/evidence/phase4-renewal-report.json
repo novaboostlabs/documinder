@@ -1,0 +1,182 @@
+{
+  "phase": "Phase 4: renewal intake + review",
+  "exit_check": "PASS",
+  "criteria": "Approval creates a new verified version without destroying history; rejection changes no verified expiration date.",
+  "workflow": "Documinder \u00b7 B \u00b7 Renewal Intake & Review (two n8n Form Triggers), driven through n8n MCP execute_workflow with formData",
+  "submissions": [
+    {
+      "execution": 14,
+      "input": "Taylor Morgan \u00b7 TWIC \u00b7 2031-10-22",
+      "outcome": "pending_review",
+      "renewal_id": "RN-14"
+    },
+    {
+      "execution": 15,
+      "input": "Taylor Morgan \u00b7 TWIC again",
+      "outcome": "duplicate",
+      "note": "returned RN-14; nothing stored"
+    },
+    {
+      "execution": 16,
+      "input": "Morgan Reed \u00b7 MEDICAL_CERT \u00b7 2026-09-01",
+      "outcome": "invalid_submission",
+      "reason": "expiration 2026-09-01 is not after today (2026-10-15); expiration 2026-09-01 does not extend the current verified date 2026-10-10"
+    },
+    {
+      "execution": 17,
+      "input": "Morgan Reed \u00b7 MEDICAL_CERT \u00b7 2028-10-10",
+      "outcome": "pending_review",
+      "renewal_id": "RN-17"
+    }
+  ],
+  "documents_unchanged_after_all_submissions": true,
+  "reviews": [
+    {
+      "execution": 18,
+      "renewal": "RN-14",
+      "reviewer": "random.person@example.com",
+      "result": "refused: not an authorized reviewer"
+    },
+    {
+      "execution": 19,
+      "renewal": "RN-14",
+      "reviewer": "former.reviewer@example.com (inactive)",
+      "result": "refused: not an authorized reviewer"
+    },
+    {
+      "execution": 20,
+      "renewal": "RN-14",
+      "reviewer": "compliance.reviewer@example.com",
+      "decision": "approve",
+      "result": "approved: TWIC v2, v1 archived, 1 reminder closed, 1 staff-review item resolved"
+    },
+    {
+      "execution": 21,
+      "renewal": "RN-14",
+      "decision": "approve again",
+      "result": "refused: can only be reviewed once"
+    },
+    {
+      "execution": 22,
+      "renewal": "RN-17",
+      "decision": "reject, no reason",
+      "result": "refused: a rejection needs a reason"
+    },
+    {
+      "execution": 23,
+      "renewal": "RN-17",
+      "decision": "reject",
+      "result": "rejected: Certificate image is unreadable; please upload a clearer scan"
+    }
+  ],
+  "documents_table": {
+    "rows_before": 61,
+    "rows_after": 62,
+    "rows_removed": 0,
+    "changed": [
+      {
+        "document": "DOC0029 v1",
+        "changes": {
+          "status": [
+            "verified",
+            "archived"
+          ]
+        }
+      }
+    ],
+    "added": [
+      {
+        "document_id": "DOC0029",
+        "version": 2,
+        "status": "verified",
+        "expiration_date": "2031-10-22",
+        "issue_date": "2026-10-15",
+        "verified_by": "compliance.reviewer@example.com"
+      }
+    ],
+    "morgan_reed_medical_cert_after_rejection": [
+      {
+        "document_id": "DOC0040",
+        "version": 1,
+        "status": "verified",
+        "expiration_date": "2026-10-10"
+      }
+    ]
+  },
+  "notifications_closed": [
+    {
+      "notification_id": "NTF-13-005",
+      "reminder_stage": "D7",
+      "status": "uncertain",
+      "closed_reason": "superseded by renewal RN-14 (v2)"
+    }
+  ],
+  "staff_review_after": [
+    {
+      "category": "delivery_failed",
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "category": "delivery_uncertain",
+      "status": "resolved",
+      "resolution": "superseded by renewal RN-14 (v2)"
+    },
+    {
+      "category": "missing_document",
+      "status": "open",
+      "resolution": null
+    },
+    {
+      "category": "invalid_date",
+      "status": "open",
+      "resolution": null
+    }
+  ],
+  "renewals_after": [
+    {
+      "renewal_id": "RN-14",
+      "driver_id": "D006",
+      "document_type": "TWIC",
+      "status": "approved",
+      "reviewed_by": "compliance.reviewer@example.com",
+      "new_version": 2,
+      "rejection_reason": ""
+    },
+    {
+      "renewal_id": "RN-16",
+      "driver_id": "D008",
+      "document_type": "MEDICAL_CERT",
+      "status": "invalid_submission",
+      "reviewed_by": "",
+      "new_version": null,
+      "rejection_reason": "expiration 2026-09-01 is not after today (2026-10-15); expiration 2026-09-01 does not extend the current verified date 2026-10-10"
+    },
+    {
+      "renewal_id": "RN-17",
+      "driver_id": "D008",
+      "document_type": "MEDICAL_CERT",
+      "status": "rejected",
+      "reviewed_by": "compliance.reviewer@example.com",
+      "new_version": null,
+      "rejection_reason": "Certificate image is unreadable; please upload a clearer scan."
+    }
+  ],
+  "daily_review_after_approval": {
+    "execution": "24",
+    "taylor_twic": {
+      "state": "current",
+      "document_version": 2,
+      "expiration_date": "2031-10-22",
+      "days_remaining": 1833,
+      "reminder_stage": ""
+    },
+    "run_summary": {
+      "reminders_due": 8,
+      "attempted": 1,
+      "skipped_duplicates": 7,
+      "retried_after_failure": 1
+    },
+    "phase1_report_vs_fixture_baseline": "83/84: the only difference is Taylor Morgan TWIC (critical/D7 -> current), the intended effect of the approval"
+  }
+}

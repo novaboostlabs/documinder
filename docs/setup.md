@@ -53,7 +53,7 @@ node scripts/load-fixtures.mjs
 
 This creates the eight `documinder_*` data tables and loads the fictional fixtures. It uses MCP, or the REST API if `N8N_API_KEY` is set.
 
-Then, in n8n, choose **Workflows → Import from file** and pick [`workflows/daily-review.json`](../workflows/daily-review.json). The Data Table nodes find their tables **by name**, so there are no IDs to re-link. Click **Execute workflow**. The last node, **Phase 1 Test Report**, should show `exit_check: "PASS"`.
+Then, in n8n, choose **Workflows → Import from file** and import [`daily-review.json`](../workflows/daily-review.json), [`renewals.json`](../workflows/renewals.json), and [`reset-demo.json`](../workflows/reset-demo.json). The Send Email node needs your own SMTP credential. The Data Table nodes find their tables **by name**, so there are no IDs to re-link. Click **Execute workflow**. The last node, **Phase 1 Test Report**, should show `exit_check: "PASS"`.
 
 ## How the workflow is built
 
@@ -65,3 +65,14 @@ Then, in n8n, choose **Workflows → Import from file** and pick [`workflows/dai
 4. `get_workflow_details`, to export the result to `workflows/daily-review.json`.
 
 [`scripts/n8n-mcp.mjs`](../scripts/n8n-mcp.mjs) is a small dependency-free MCP client that runs the same calls from a terminal.
+
+## Try the renewal forms
+
+Open **Documinder · B · Renewal Intake & Review** in n8n, click **Execute workflow**, and choose a form trigger. n8n opens the test form in your browser:
+
+1. **Submit Renewal Form:** pick a driver and a document type, then enter a future date and any `https://` link.
+2. Note the renewal ID on the result page (for example `RN-42`). It also appears in `documinder_renewals`.
+3. **Review Renewal Form:** enter that ID, `compliance.reviewer@example.com`, and approve or reject.
+4. Check `documinder_documents`: on approval, the old version is `archived` and a new `verified` version exists.
+
+Run **Documinder · Dev · Reset Demo Data** to put everything back.

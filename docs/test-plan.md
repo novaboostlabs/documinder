@@ -64,7 +64,31 @@ Unit tests ([`tests/delivery.test.mjs`](../tests/delivery.test.mjs)) also cover 
 
 **Bug found and fixed during testing:** "Interpret Provider Result" gets input from two branches (simulated and real), so n8n runs it once per branch. `$('Interpret Provider Result').all()` returns only the first run, so the summary first reported 0 sent even though Gmail had accepted all 7. That meant a real SMTP failure arriving on the second run could also have skipped the staff-review queue. Both nodes now read every run (`$(node).all(0, runIndex)`).
 
-## Phase 4: renewal *(planned)*
+## Phase 4: renewal intake + review
 
-- Approving a renewal for Morgan Reed's medical cert: v1 → `archived`, v2 is created as `verified`, and v1's notifications → `closed`.
-- Rejecting a renewal: the verified expiration date is unchanged and `rejection_reason` is recorded.
+**Setup:** reset to the baseline, add the failure and timeout simulations, and run the daily review once. Taylor Morgan's TWIC reminder is then `uncertain`, with an open staff-review item. Snapshot `documinder_documents`.
+
+| # | Action (n8n form, run through MCP) | Expected | Result |
+|---|---|---|---|
+| 1 | Submit Taylor · TWIC · 2031-10-22 | `pending_review` | ✅ RN-14 |
+| 2 | Submit the same again | duplicate, nothing stored | ✅ returned RN-14 |
+| 3 | Submit Morgan Reed · MEDICAL_CERT · 2026-09-01 | `invalid_submission` with reasons | ✅ |
+| 4 | Submit Morgan Reed · MEDICAL_CERT · 2028-10-10 | `pending_review` | ✅ RN-17 |
+| - | Compare the documents table | identical to the snapshot | ✅ 61 = 61, identical |
+| 5 | An unknown reviewer approves RN-14 | refused | ✅ |
+| 6 | An inactive reviewer approves RN-14 | refused | ✅ |
+| 7 | The authorized reviewer approves RN-14 | v2 verified, v1 archived, old reminder closed, staff item resolved | ✅ |
+| 8 | Approve RN-14 again | refused (reviewed once) | ✅ |
+| 9 | Reject RN-17 without a reason | refused | ✅ |
+| 10 | Reject RN-17 with a reason | `rejected`, documents unchanged | ✅ |
+| 11 | Daily review | Taylor TWIC `current`, 8 due instead of 9 | ✅ |
+
+**Documents table after step 10:** 62 rows (61 + 1), **0 removed**. The only changed row is DOC0029 v1, `verified → archived`. Morgan Reed's certificate is still v1, verified, expiring 2026-10-10. The closed reminder kept its delivery status (`uncertain`).
+
+Unit tests ([`tests/renewals.test.mjs`](../tests/renewals.test.mjs)) also cover: a renewal must extend the current date, and approving a renewal for a *missing* document creates v1 and resolves the "missing document" staff item.
+
+**Result (2026-10-09):** ✅ PASS. See [`evidence/phase4-renewal-report.json`](evidence/phase4-renewal-report.json).
+
+**Notes from testing:**
+- After an approval, the Phase 1 report (which compares against the original fixtures) shows 83/84. The one difference is the renewed document, which is the intended effect. *Documinder · Dev · Reset Demo Data* restores the baseline.
+- When a form is submitted by a script (MCP) instead of a browser, the execution stays "waiting" on the result page because no browser is there to display it. All the work before that page has already finished. In a real browser, the result page shows immediately.

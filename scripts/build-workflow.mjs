@@ -3,6 +3,7 @@
 //
 //   node scripts/build-workflow.mjs
 //     -> workflows/daily-review.sdk.js   "Documinder · A · Daily Review"
+//     -> workflows/renewals.sdk.js       "Documinder · B · Renewal Intake & Review"
 //     -> workflows/reset-demo.sdk.js     "Documinder · Dev · Reset Demo Data"
 //
 // Apply to n8n with scripts/sync-workflow.mjs (existing workflow) or MCP
@@ -15,10 +16,15 @@ import { fileURLToPath } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 // Drop the Node-only export block; everything else runs unchanged in the Code node.
 const forN8n = (file) =>
-  readFileSync(join(root, file), 'utf8').replace(/\/\* n8n-export-start \*\/[\s\S]*\/\* n8n-export-end \*\//, '').trim();
+  readFileSync(join(root, file), 'utf8')
+    .replace(/\/\* n8n-export-start \*\/[\s\S]*\/\* n8n-export-end \*\//, '')
+    .replace(/\/\* n8n-strip-start \*\/[\s\S]*?\/\* n8n-strip-end \*\//g, '')
+    .trim();
 const coreForN8n = forN8n('src/documinder-core.js');
 const remindersForN8n = forN8n('src/documinder-reminders.js');
 const deliveryForN8n = forN8n('src/documinder-delivery.js');
+const renewalsForN8n = forN8n('src/documinder-renewals.js');
+const fixtures = JSON.parse(readFileSync(join(root, 'data/fixtures/fixtures.json'), 'utf8'));
 
 // Loads that may legitimately be empty emit one empty item (alwaysOutputData);
 // glue code keeps only real rows.
@@ -68,6 +74,7 @@ const failures = results.filter((r) => !r.pass);
 return [{
   json: {
     phase: 'Phase 1: classification engine',
+    compares_against: 'the fixture baseline in data/fixtures. Approved renewals intentionally change results; run \"Documinder · Dev · Reset Demo Data\" to restore the baseline.',
     reference_date: rows[0] ? rows[0].reference_date : null,
     reference_source: rows[0] ? rows[0].reference_source : null,
     exit_check: failures.length === 0 && unexpectedRows.length === 0 ? 'PASS' : 'FAIL',
@@ -481,6 +488,284 @@ export default workflow('documinder-daily-review', 'Documinder · A · Daily Rev
   .add(noteReview);
 `;
 
+
+// ---------- Renewal intake & review workflow (Phase 4) ----------
+
+const submitCode = `${coreForN8n}
+
+${renewalsForN8n}
+
+// ---------- n8n glue ----------
+const form = $('Submit Renewal Form').first().json;
+const submission = {
+  driver_id: String(form.driver || '').split(' ')[0],
+  document_type: form.document_type,
+  submitted_expiration_date: form.submitted_expiration_date,
+  submitted_file_url: form.submitted_file_url,
+};
+const result = evaluateSubmission({
+  submission,
+  settings: $('Load Settings (intake)').first().json,
+  drivers: $('Load Drivers (intake)').all().map((i) => i.json),
+  requirements: $('Load Requirements (intake)').all().map((i) => i.json),
+  documents: $('Load Documents (intake)').all().map((i) => i.json),
+  renewals: ${rowsOf('Load Renewals (intake)', 'renewal_id')},
+  renewalId: 'RN-' + $execution.id,
+});
+return [{ json: { outcome: result.outcome, store: result.store, message: result.message, ...result.renewal } }];
+`;
+
+const reviewCode = `${coreForN8n}
+
+${renewalsForN8n}
+
+// ---------- n8n glue ----------
+const plan = evaluateReview({
+  review: $('Review Renewal Form').first().json,
+  settings: $('Load Settings (review)').first().json,
+  reviewers: ${rowsOf('Load Reviewers', 'reviewer_email')},
+  renewals: ${rowsOf('Load Renewals (review)', 'renewal_id')},
+  documents: $('Load Documents (review)').all().map((i) => i.json),
+  notifications: ${rowsOf('Load Notifications (review)', 'notification_id')},
+  staffReview: ${rowsOf('Load Staff Review (review)', 'review_key')},
+});
+return [{ json: plan }];
+`;
+
+const splitCloseCode = `// One item per reminder of the superseded version (none for rejections or first versions).
+return ($('Decide Review').first().json.notifications_to_close || []).map((n) => ({ json: n }));
+`;
+const splitResolveCode = `// One item per staff-review entry this renewal resolves.
+return ($('Decide Review').first().json.review_items_to_resolve || []).map((r) => ({ json: r }));
+`;
+
+const RENEWAL_COLUMNS = ['renewal_id', 'driver_id', 'document_type', 'submitted_expiration_date', 'submitted_file_url', 'status', 'submitted_at', 'reviewed_at', 'reviewed_by', 'rejection_reason', 'previous_document_id', 'previous_version', 'previous_expiration_date', 'new_document_id', 'new_version'];
+const DOCUMENT_COLUMNS = ['document_id', 'driver_id', 'document_type', 'version', 'issue_date', 'expiration_date', 'status', 'source_file_url', 'verified_at', 'verified_by'];
+const NUMERIC = new Set(['version', 'previous_version', 'new_version', 'document_version']);
+const typedSchema = (cols) => cols.map((c) =>
+  `          { id: '${c}', displayName: '${c}', required: false, defaultMatch: false, display: true, type: '${NUMERIC.has(c) ? 'number' : 'string'}', canBeUsedToMatch: true },`).join('\n');
+const mappingFrom = (cols, source) => cols.map((c) => `          ${c}: expr("{{ ${source}.${c} }}"),`).join('\n');
+
+const tableNode = (varName, name, table, operation, [x, y], { columns, source, filters, extra = '' }) => `const ${varName} = node({
+  type: 'n8n-nodes-base.dataTable',
+  version: 1.1,
+  config: {
+    name: '${name}',
+    ${extra}parameters: {
+      resource: 'row',
+      operation: '${operation}',
+      dataTableId: { __rl: true, mode: 'name', value: '${table}' },${filters ? `
+      matchType: 'allConditions',
+      filters: { conditions: [${filters}] },` : ''}
+      columns: {
+        mappingMode: 'defineBelow',
+        value: {
+${mappingFrom(columns, source)}
+        },
+        schema: [
+${typedSchema(columns)}
+        ],
+      },
+    },
+    position: [${x}, ${y}],
+  },
+  output: [{ id: 1 }],
+});
+`;
+const cond = (key, value) => `{ keyName: '${key}', condition: 'eq', keyValue: expr("{{ ${value} }}") }`;
+
+const loadAt = (varName, name, table, [x, y], extra = '') => loadNode(varName, name, table, x, extra).replace(`position: [${x}, 300]`, `position: [${x}, ${y}]`);
+
+const driverOptions = fixtures.drivers.map((d) => `{ option: '${d.driver_id} · ${d.full_name}' }`).join(', ');
+const docTypeOptions = ['CDL', 'MEDICAL_CERT', 'TWIC', 'HAZMAT_ENDORSEMENT', 'TANKER_ENDORSEMENT', 'DOUBLES_TRIPLES_ENDORSEMENT', 'SAFETY_TRAINING'].map((t) => `{ option: '${t}' }`).join(', ');
+
+const completion = (varName, name, title, message, [x, y]) => `const ${varName} = node({
+  type: 'n8n-nodes-base.form',
+  version: 2.5,
+  config: {
+    name: '${name}',
+    parameters: {
+      operation: 'completion',
+      respondWith: 'text',
+      completionTitle: ${title},
+      completionMessage: ${message},
+    },
+    position: [${x}, ${y}],
+  },
+  output: [{}],
+});
+`;
+
+const renewals = `import { workflow, node, trigger, sticky, expr } from '@n8n/workflow-sdk';
+
+const submitForm = trigger({
+  type: 'n8n-nodes-base.formTrigger',
+  version: 2.6,
+  config: {
+    name: 'Submit Renewal Form',
+    parameters: {
+      formTitle: 'Documinder · Submit a renewed credential',
+      formDescription: 'Fictional demo. Your verified record does not change until compliance approves this submission.',
+      formFields: {
+        values: [
+          { fieldLabel: 'Driver', fieldName: 'driver', fieldType: 'dropdown', requiredField: true, fieldOptions: { values: [${driverOptions}] } },
+          { fieldLabel: 'Document type', fieldName: 'document_type', fieldType: 'dropdown', requiredField: true, fieldOptions: { values: [${docTypeOptions}] } },
+          { fieldLabel: 'New expiration date', fieldName: 'submitted_expiration_date', fieldType: 'date', requiredField: true },
+          { fieldLabel: 'Link to the renewed document', fieldName: 'submitted_file_url', fieldType: 'text', placeholder: 'https://files.example.com/...', requiredField: true },
+        ],
+      },
+      responseMode: 'onReceived',
+      options: { path: 'documinder-submit-renewal', buttonLabel: 'Submit renewal', appendAttribution: false },
+    },
+    position: [0, 300],
+  },
+  output: [{ driver: 'D006 · Taylor Morgan', document_type: 'TWIC', submitted_expiration_date: '2031-10-22', submitted_file_url: 'https://files.example.com/twic.pdf', submittedAt: '2026-10-15T10:00:00.000-07:00', formMode: 'test' }],
+});
+
+${loadAt('loadSettingsIn', 'Load Settings (intake)', 'documinder_settings', [240, 300], '')}
+${loadAt('loadDriversIn', 'Load Drivers (intake)', 'documinder_drivers', [480, 300], ONCE)}
+${loadAt('loadReqIn', 'Load Requirements (intake)', 'documinder_requirements', [720, 300], ONCE)}
+${loadAt('loadDocsIn', 'Load Documents (intake)', 'documinder_documents', [960, 300], ONCE)}
+${loadAt('loadRenewalsIn', 'Load Renewals (intake)', 'documinder_renewals', [1200, 300], ONCE_MAYBE_EMPTY)}
+${codeNode('evaluateSubmission', 'Evaluate Submission', submitCode, [1440, 300], 'runOnceForAllItems', sample(RENEWAL_COLUMNS, { outcome: 'pending_review', store: true, message: 'sample' }))}
+const shouldStore = node({
+  type: 'n8n-nodes-base.if',
+  version: 2.3,
+  config: {
+    name: 'Store Submission?',
+    parameters: {
+      conditions: {
+        combinator: 'and',
+        options: { caseSensitive: true, leftValue: '', typeValidation: 'strict', version: 2 },
+        conditions: [{ leftValue: expr('{{ $json.store }}'), rightValue: '', operator: { type: 'boolean', operation: 'true', singleValue: true } }],
+      },
+    },
+    position: [1680, 300],
+  },
+  output: [${sample(RENEWAL_COLUMNS, { outcome: 'pending_review', store: true, message: 'sample' })}],
+});
+
+${tableNode('storeRenewal', 'Store Renewal (pending_review)', 'documinder_renewals', 'insert', [1920, 220], { columns: RENEWAL_COLUMNS, source: "$('Evaluate Submission').first().json" })}
+${completion('showSubmission', 'Show Submission Result', `expr("{{ $('Evaluate Submission').first().json.outcome === 'pending_review' ? 'Renewal received' : ($('Evaluate Submission').first().json.outcome === 'duplicate' ? 'Already submitted' : 'Submission not accepted') }}")`, `expr("{{ $('Evaluate Submission').first().json.message }}")`, [2160, 300])}
+const reviewForm = trigger({
+  type: 'n8n-nodes-base.formTrigger',
+  version: 2.6,
+  config: {
+    name: 'Review Renewal Form',
+    parameters: {
+      formTitle: 'Documinder · Review a renewal (compliance)',
+      formDescription: 'Fictional demo. Only reviewers listed in documinder_reviewers can decide. Each renewal can be reviewed once.',
+      formFields: {
+        values: [
+          { fieldLabel: 'Renewal ID', fieldName: 'renewal_id', fieldType: 'text', placeholder: 'RN-123', requiredField: true },
+          { fieldLabel: 'Reviewer email', fieldName: 'reviewer_email', fieldType: 'email', requiredField: true },
+          { fieldLabel: 'Decision', fieldName: 'decision', fieldType: 'dropdown', requiredField: true, fieldOptions: { values: [{ option: 'approve' }, { option: 'reject' }] } },
+          { fieldLabel: 'Rejection reason (required to reject)', fieldName: 'rejection_reason', fieldType: 'textarea' },
+        ],
+      },
+      responseMode: 'onReceived',
+      options: { path: 'documinder-review-renewal', buttonLabel: 'Record decision', appendAttribution: false },
+    },
+    position: [0, 900],
+  },
+  output: [{ renewal_id: 'RN-1', reviewer_email: 'compliance.reviewer@example.com', decision: 'approve', rejection_reason: '', submittedAt: '2026-10-15T10:00:00.000-07:00', formMode: 'test' }],
+});
+
+${loadAt('loadSettingsRv', 'Load Settings (review)', 'documinder_settings', [240, 900], '')}
+${loadAt('loadReviewers', 'Load Reviewers', 'documinder_reviewers', [480, 900], ONCE_MAYBE_EMPTY)}
+${loadAt('loadRenewalsRv', 'Load Renewals (review)', 'documinder_renewals', [720, 900], ONCE_MAYBE_EMPTY)}
+${loadAt('loadDocsRv', 'Load Documents (review)', 'documinder_documents', [960, 900], ONCE)}
+${loadAt('loadNotifRv', 'Load Notifications (review)', 'documinder_notifications', [1200, 900], ONCE_MAYBE_EMPTY)}
+${loadAt('loadReviewRv', 'Load Staff Review (review)', 'documinder_staff_review', [1440, 900], ONCE_MAYBE_EMPTY)}
+${codeNode('decide', 'Decide Review', reviewCode, [1680, 900], 'runOnceForAllItems', "{ action: 'approve', renewal_id: 'RN-1', message: 'sample', archive: { document_id: 'DOC0034', version: 1 }, new_document: { document_id: 'DOC0034', version: 2 }, renewal_update: { status: 'approved' }, notifications_to_close: [], review_items_to_resolve: [] }")}
+const routeDecision = node({
+  type: 'n8n-nodes-base.switch',
+  version: 3.2,
+  config: {
+    name: 'Route Decision',
+    parameters: {
+      rules: {
+        values: [
+          { outputKey: 'approve', renameOutput: true, conditions: { options: { caseSensitive: true, leftValue: '', typeValidation: 'strict', version: 2 }, conditions: [{ leftValue: expr('{{ $json.action }}'), rightValue: 'approve', operator: { type: 'string', operation: 'equals' } }], combinator: 'and' } },
+          { outputKey: 'reject', renameOutput: true, conditions: { options: { caseSensitive: true, leftValue: '', typeValidation: 'strict', version: 2 }, conditions: [{ leftValue: expr('{{ $json.action }}'), rightValue: 'reject', operator: { type: 'string', operation: 'equals' } }], combinator: 'and' } },
+        ],
+      },
+      options: { fallbackOutput: 'extra', renameFallbackOutput: 'refuse' },
+    },
+    position: [1920, 900],
+  },
+  output: [{ action: 'approve' }],
+});
+
+${tableNode('createVersion', 'Create New Verified Version', 'documinder_documents', 'insert', [2160, 780], { columns: DOCUMENT_COLUMNS, source: "$('Decide Review').first().json.new_document" })}
+${tableNode('archiveVersion', 'Archive Previous Version', 'documinder_documents', 'update', [2400, 780], {
+  columns: ['status'], source: "{ status: 'archived' }",
+  filters: [cond('document_id', "$('Decide Review').first().json.archive ? $('Decide Review').first().json.archive.document_id : '__no_previous_version__'"), cond('version', "$('Decide Review').first().json.archive ? $('Decide Review').first().json.archive.version : -1")].join(', '),
+  extra: 'alwaysOutputData: true,\n    ',
+}).replace(`status: expr("{{ { status: 'archived' }.status }}")`, "status: 'archived'")}
+${tableNode('recordDecision', 'Record Review Decision', 'documinder_renewals', 'update', [2640, 900], {
+  columns: ['status', 'reviewed_at', 'reviewed_by', 'rejection_reason', 'new_document_id', 'new_version'],
+  source: "$('Decide Review').first().json.renewal_update",
+  filters: cond('renewal_id', "$('Decide Review').first().json.renewal_id"),
+})}
+${codeNode('splitClose', 'Reminders to Close', splitCloseCode, [2880, 780], 'runOnceForAllItems', "{ notification_id: 'NTF-1-001', closed_at: '2026-10-15T17:00:00.000Z', closed_reason: 'sample' }")}
+${tableNode('closeReminder', 'Close Old-Version Reminder', 'documinder_notifications', 'update', [3120, 780], {
+  columns: ['closed_at', 'closed_reason'], source: '$json', filters: cond('notification_id', '$json.notification_id'),
+})}
+${codeNode('splitResolve', 'Staff Review Items to Resolve', splitResolveCode, [2880, 1000], 'runOnceForAllItems', "{ review_key: 'delivery|NTF-1-001', status: 'resolved', resolved_at: '2026-10-15T17:00:00.000Z', resolution: 'sample' }")}
+${tableNode('resolveReview', 'Resolve Staff Review Item', 'documinder_staff_review', 'update', [3120, 1000], {
+  columns: ['status', 'resolved_at', 'resolution'], source: '$json', filters: cond('review_key', '$json.review_key'),
+})}
+${completion('showReview', 'Show Review Result', `expr("{{ { approve: 'Renewal approved', reject: 'Renewal rejected', refuse: 'No change made' }[$('Decide Review').first().json.action] }}")`, `expr("{{ $('Decide Review').first().json.message }}")`, [2880, 1220])}
+${stickyNote('noteIntake', [
+  '## B1 · Renewal intake',
+  'A driver submits a renewed credential through the form. It is validated: active driver, a required document type, a real date that is in the future and extends the current one, and a link.',
+  '',
+  'Valid → stored as **pending_review**. Invalid → stored as invalid_submission with the reason. Already pending → the existing renewal is returned.',
+  '**The verified document is never changed here.**',
+], 4, [-120, 60], [2400, 420])}
+${stickyNote('noteReview', [
+  '## B2 · Review (compliance)',
+  'Refused with no change: unknown renewal, already reviewed (so it can never be approved twice), reviewer not on the allow-list, or a reject without a reason.',
+  '',
+  '**Approve:** create v+1 as verified → archive the old version (kept, never deleted) → record the decision → close old-version reminders (delivery status kept) → resolve related staff-review items.',
+  '**Reject:** record the reason only. Documents are untouched.',
+  '',
+  'Source: src/documinder-renewals.js',
+], 6, [-120, 640], [3460, 760])}
+export default workflow('documinder-renewals', 'Documinder · B · Renewal Intake & Review')
+  .add(submitForm)
+  .to(loadSettingsIn)
+  .to(loadDriversIn)
+  .to(loadReqIn)
+  .to(loadDocsIn)
+  .to(loadRenewalsIn)
+  .to(evaluateSubmission)
+  .to(shouldStore.onTrue(storeRenewal.to(showSubmission)).onFalse(showSubmission))
+  .add(reviewForm)
+  .to(loadSettingsRv)
+  .to(loadReviewers)
+  .to(loadRenewalsRv)
+  .to(loadDocsRv)
+  .to(loadNotifRv)
+  .to(loadReviewRv)
+  .to(decide)
+  .to(routeDecision
+    .onCase(0, createVersion.to(archiveVersion).to(recordDecision))
+    .onCase(1, recordDecision)
+    .onCase(2, showReview))
+  .add(recordDecision)
+  .to(splitClose)
+  .to(closeReminder)
+  .add(recordDecision)
+  .to(splitResolve)
+  .to(resolveReview)
+  .add(recordDecision)
+  .to(showReview)
+  .add(noteIntake)
+  .add(noteReview);
+`;
+
 // ---------- Dev reset workflow ----------
 
 const clearNode = (varName, name, table, x) => `const ${varName} = node({
@@ -530,19 +815,47 @@ const isPreview = node({
 ${clearNode('clearNotifications', 'Clear Notification History', 'documinder_notifications', 720)}
 ${clearNode('clearReview', 'Clear Staff Review Queue', 'documinder_staff_review', 960)}
 ${clearNode('clearSimulations', 'Clear Provider Simulations', 'documinder_provider_simulations', 1200)}
+${clearNode('clearRenewals', 'Clear Renewals', 'documinder_renewals', 1440)}
+${clearNode('clearDocuments', 'Clear Documents', 'documinder_documents', 1680)}
+${codeNode('fixtureDocs', 'Fixture Documents', `// The 61 fictional documents from data/fixtures/fixtures.json (embedded at build time).\nreturn ${JSON.stringify(fixtures.documents)}.map((d) => ({ json: d }));\n`, [1920, 300], 'runOnceForAllItems', JSON.stringify(fixtures.documents[0]))}
+const restoreDocs = node({
+  type: 'n8n-nodes-base.dataTable',
+  version: 1.1,
+  config: {
+    name: 'Restore Fixture Documents',
+    parameters: {
+      resource: 'row',
+      operation: 'insert',
+      dataTableId: { __rl: true, mode: 'name', value: 'documinder_documents' },
+      columns: {
+        mappingMode: 'defineBelow',
+        value: {
+${mapping(DOCUMENT_COLUMNS)}
+        },
+        schema: [
+${typedSchema(DOCUMENT_COLUMNS)}
+        ],
+      },
+    },
+    position: [2160, 300],
+  },
+  output: [{ id: 1 }],
+});
+
 ${stickyNote('note', [
   '## Dev · Reset demo data',
-  'Clears notification history, the staff-review queue, and provider simulations so the daily review can be demonstrated from a clean slate.',
+  'Returns the demo to the fixture baseline: clears notification history, the staff-review queue, provider simulations, and renewals, then restores the 61 fictional documents (undoing any approved renewals).',
   '',
-  '**Guard:** does nothing unless documinder_settings.preview_only is true, so it can never wipe live history. Drivers, documents, and requirements are not touched.',
-], 4, [-120, -40], [1500, 520])}
+  '**Guard:** does nothing unless documinder_settings.preview_only is true, so it can never wipe live history. Drivers, requirements, reviewers, and settings are not touched.',
+], 4, [-120, -40], [2460, 520])}
 export default workflow('documinder-reset-demo', 'Documinder · Dev · Reset Demo Data')
   .add(start)
   .to(loadSettings)
-  .to(isPreview.onTrue(clearNotifications.to(clearReview).to(clearSimulations)))
+  .to(isPreview.onTrue(clearNotifications.to(clearReview).to(clearSimulations).to(clearRenewals).to(clearDocuments).to(fixtureDocs).to(restoreDocs)))
   .add(note);
 `;
 
 writeFileSync(join(root, 'workflows/daily-review.sdk.js'), dailyReview);
 writeFileSync(join(root, 'workflows/reset-demo.sdk.js'), resetDemo);
-console.log(`wrote workflows/daily-review.sdk.js (${dailyReview.length} chars), workflows/reset-demo.sdk.js (${resetDemo.length} chars)`);
+writeFileSync(join(root, 'workflows/renewals.sdk.js'), renewals);
+console.log(`wrote daily-review.sdk.js (${dailyReview.length}), renewals.sdk.js (${renewals.length}), reset-demo.sdk.js (${resetDemo.length})`);

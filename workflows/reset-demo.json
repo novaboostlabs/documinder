@@ -125,8 +125,8 @@
       "executeOnce": true
     },
     {
-      "id": "236eefe1-f84b-4ae5-b2e4-000f1c483869",
-      "name": "Sticky Note ab60d366",
+      "id": "9f2987f6-f8e7-4fba-b187-8d4258bcccdc",
+      "name": "Sticky Note 9ad7566b",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
@@ -134,11 +134,202 @@
         -40
       ],
       "parameters": {
-        "content": "## Dev · Reset demo data\nClears notification history, the staff-review queue, and provider simulations so the daily review can be demonstrated from a clean slate.\n\n**Guard:** does nothing unless documinder_settings.preview_only is true, so it can never wipe live history. Drivers, documents, and requirements are not touched.",
+        "content": "## Dev · Reset demo data\nReturns the demo to the fixture baseline: clears notification history, the staff-review queue, provider simulations, and renewals, then restores the 61 fictional documents (undoing any approved renewals).\n\n**Guard:** does nothing unless documinder_settings.preview_only is true, so it can never wipe live history. Drivers, requirements, reviewers, and settings are not touched.",
         "color": 4,
-        "width": 1500,
+        "width": 2460,
         "height": 520
       }
+    },
+    {
+      "id": "a16d987c-65e7-4dec-8860-688672300a15",
+      "name": "Clear Renewals",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1440,
+        300
+      ],
+      "parameters": {
+        "resource": "table",
+        "operation": "clear",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "documinder_renewals"
+        }
+      },
+      "onError": "stopWorkflow",
+      "alwaysOutputData": false,
+      "executeOnce": true
+    },
+    {
+      "id": "4f2bbcbc-d6f0-45b9-91d9-4d2a04171b1f",
+      "name": "Clear Documents",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1680,
+        300
+      ],
+      "parameters": {
+        "resource": "table",
+        "operation": "clear",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "documinder_documents"
+        }
+      },
+      "onError": "stopWorkflow",
+      "alwaysOutputData": false,
+      "executeOnce": true
+    },
+    {
+      "id": "480330cc-96ae-4418-bc98-4e531c504c28",
+      "name": "Fixture Documents",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1920,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// The 61 fictional documents from data/fixtures/fixtures.json (embedded at build time).\nreturn [{\"document_id\":\"DOC0001\",\"driver_id\":\"D001\",\"document_type\":\"CDL\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2027-03-20\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D001/cdl-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0002\",\"driver_id\":\"D001\",\"document_type\":\"MEDICAL_CERT\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2028-04-30\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D001/medical_cert-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0003\",\"driver_id\":\"D001\",\"document_type\":\"TWIC\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2030-01-31\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D001/twic-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0004\",\"driver_id\":\"D001\",\"document_type\":\"HAZMAT_ENDORSEMENT\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D001/hazmat_endorsement-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0005\",\"driver_id\":\"D001\",\"document_type\":\"TANKER_ENDORSEMENT\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D001/tanker_endorsement-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0006\",\"driver_id\":\"D001\",\"document_type\":\"SAFETY_TRAINING\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2027-08-31\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D001/safety_training-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0007\",\"driver_id\":\"D002\",\"document_type\":\"CDL\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2029-06-30\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D002/cdl-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0008\",\"driver_id\":\"D002\",\"document_type\":\"MEDICAL_CERT\",\"version\":2,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2027-01-13\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D002/medical_cert-v2.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0009\",\"driver_id\":\"D002\",\"document_type\":\"TWIC\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2030-01-31\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D002/twic-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0010\",\"driver_id\":\"D002\",\"document_type\":\"HAZMAT_ENDORSEMENT\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D002/hazmat_endorsement-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0011\",\"driver_id\":\"D002\",\"document_type\":\"TANKER_ENDORSEMENT\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D002/tanker_endorsement-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0012\",\"driver_id\":\"D002\",\"document_type\":\"SAFETY_TRAINING\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2027-08-31\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D002/safety_training-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0013\",\"driver_id\":\"D003\",\"document_type\":\"CDL\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2029-06-30\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D003/cdl-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0014\",\"driver_id\":\"D003\",\"document_type\":\"MEDICAL_CERT\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2028-04-30\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D003/medical_cert-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0015\",\"driver_id\":\"D003\",\"document_type\":\"TWIC\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2026-12-14\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D003/twic-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0016\",\"driver_id\":\"D003\",\"document_type\":\"DOUBLES_TRIPLES_ENDORSEMENT\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D003/doubles_triples_endorsement-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0017\",\"driver_id\":\"D003\",\"document_type\":\"SAFETY_TRAINING\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2027-08-31\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D003/safety_training-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0018\",\"driver_id\":\"D004\",\"document_type\":\"CDL\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2029-06-30\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D004/cdl-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0019\",\"driver_id\":\"D004\",\"document_type\":\"MEDICAL_CERT\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2028-04-30\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D004/medical_cert-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0020\",\"driver_id\":\"D004\",\"document_type\":\"TWIC\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2030-01-31\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D004/twic-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0021\",\"driver_id\":\"D004\",\"document_type\":\"HAZMAT_ENDORSEMENT\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2026-11-14\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D004/hazmat_endorsement-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0022\",\"driver_id\":\"D004\",\"document_type\":\"TANKER_ENDORSEMENT\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D004/tanker_endorsement-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0023\",\"driver_id\":\"D004\",\"document_type\":\"SAFETY_TRAINING\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2027-08-31\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D004/safety_training-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0024\",\"driver_id\":\"D005\",\"document_type\":\"CDL\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2029-06-30\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D005/cdl-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0025\",\"driver_id\":\"D005\",\"document_type\":\"MEDICAL_CERT\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2026-10-29\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D005/medical_cert-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0026\",\"driver_id\":\"D005\",\"document_type\":\"SAFETY_TRAINING\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2027-08-31\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D005/safety_training-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0027\",\"driver_id\":\"D006\",\"document_type\":\"CDL\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2029-06-30\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D006/cdl-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0028\",\"driver_id\":\"D006\",\"document_type\":\"MEDICAL_CERT\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2028-04-30\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D006/medical_cert-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0029\",\"driver_id\":\"D006\",\"document_type\":\"TWIC\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2026-10-22\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D006/twic-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0030\",\"driver_id\":\"D006\",\"document_type\":\"HAZMAT_ENDORSEMENT\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D006/hazmat_endorsement-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0031\",\"driver_id\":\"D006\",\"document_type\":\"TANKER_ENDORSEMENT\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D006/tanker_endorsement-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0032\",\"driver_id\":\"D006\",\"document_type\":\"SAFETY_TRAINING\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2027-08-31\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D006/safety_training-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0033\",\"driver_id\":\"D007\",\"document_type\":\"CDL\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2026-10-15\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D007/cdl-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0034\",\"driver_id\":\"D007\",\"document_type\":\"MEDICAL_CERT\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2028-04-30\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D007/medical_cert-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0035\",\"driver_id\":\"D007\",\"document_type\":\"TWIC\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2030-01-31\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D007/twic-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0036\",\"driver_id\":\"D007\",\"document_type\":\"HAZMAT_ENDORSEMENT\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D007/hazmat_endorsement-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0037\",\"driver_id\":\"D007\",\"document_type\":\"TANKER_ENDORSEMENT\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D007/tanker_endorsement-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0038\",\"driver_id\":\"D007\",\"document_type\":\"SAFETY_TRAINING\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2027-08-31\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D007/safety_training-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0039\",\"driver_id\":\"D008\",\"document_type\":\"CDL\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2029-06-30\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D008/cdl-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0040\",\"driver_id\":\"D008\",\"document_type\":\"MEDICAL_CERT\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2026-10-10\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D008/medical_cert-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0041\",\"driver_id\":\"D008\",\"document_type\":\"TWIC\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2030-01-31\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D008/twic-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0042\",\"driver_id\":\"D008\",\"document_type\":\"HAZMAT_ENDORSEMENT\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D008/hazmat_endorsement-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0043\",\"driver_id\":\"D008\",\"document_type\":\"TANKER_ENDORSEMENT\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D008/tanker_endorsement-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0044\",\"driver_id\":\"D008\",\"document_type\":\"SAFETY_TRAINING\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2027-08-31\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D008/safety_training-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0045\",\"driver_id\":\"D009\",\"document_type\":\"CDL\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2026-10-15\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D009/cdl-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0046\",\"driver_id\":\"D009\",\"document_type\":\"MEDICAL_CERT\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2028-04-30\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D009/medical_cert-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0047\",\"driver_id\":\"D009\",\"document_type\":\"TWIC\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2030-01-31\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D009/twic-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0048\",\"driver_id\":\"D009\",\"document_type\":\"HAZMAT_ENDORSEMENT\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D009/hazmat_endorsement-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0049\",\"driver_id\":\"D009\",\"document_type\":\"TANKER_ENDORSEMENT\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D009/tanker_endorsement-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0050\",\"driver_id\":\"D009\",\"document_type\":\"SAFETY_TRAINING\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2027-08-31\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D009/safety_training-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0051\",\"driver_id\":\"D010\",\"document_type\":\"CDL\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2029-06-30\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D010/cdl-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0052\",\"driver_id\":\"D010\",\"document_type\":\"MEDICAL_CERT\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2028-04-30\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D010/medical_cert-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0053\",\"driver_id\":\"D010\",\"document_type\":\"SAFETY_TRAINING\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2027-08-31\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D010/safety_training-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0054\",\"driver_id\":\"D011\",\"document_type\":\"CDL\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2029-06-30\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D011/cdl-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0055\",\"driver_id\":\"D011\",\"document_type\":\"MEDICAL_CERT\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2028-04-30\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D011/medical_cert-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0056\",\"driver_id\":\"D011\",\"document_type\":\"DOUBLES_TRIPLES_ENDORSEMENT\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D011/doubles_triples_endorsement-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0057\",\"driver_id\":\"D011\",\"document_type\":\"SAFETY_TRAINING\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2027-08-31\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D011/safety_training-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0058\",\"driver_id\":\"D012\",\"document_type\":\"CDL\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2029-06-30\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D012/cdl-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0059\",\"driver_id\":\"D012\",\"document_type\":\"MEDICAL_CERT\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2026-02-30\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D012/medical_cert-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0060\",\"driver_id\":\"D012\",\"document_type\":\"SAFETY_TRAINING\",\"version\":1,\"issue_date\":\"2024-10-01\",\"expiration_date\":\"2027-08-31\",\"status\":\"verified\",\"source_file_url\":\"https://files.example.com/documinder/D012/safety_training-v1.pdf\",\"verified_at\":\"2026-09-02T09:30:00-07:00\",\"verified_by\":\"compliance.reviewer@example.com\"},{\"document_id\":\"DOC0061\",\"driver_id\":\"D002\",\"document_type\":\"MEDICAL_CERT\",\"version\":1,\"issue_date\":\"2022-01-13\",\"expiration_date\":\"2024-01-13\",\"status\":\"archived\",\"source_file_url\":\"https://files.example.com/documinder/D002/medical_cert-v1.pdf\",\"verified_at\":\"2022-01-14T10:00:00-08:00\",\"verified_by\":\"compliance.reviewer@example.com\"}].map((d) => ({ json: d }));\n"
+      },
+      "onError": "stopWorkflow",
+      "alwaysOutputData": false,
+      "executeOnce": false
+    },
+    {
+      "id": "ff99e490-f5ac-4172-8eb8-c37f6878c131",
+      "name": "Restore Fixture Documents",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2160,
+        300
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "documinder_documents"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "document_id": "={{ $json.document_id }}",
+            "driver_id": "={{ $json.driver_id }}",
+            "document_type": "={{ $json.document_type }}",
+            "version": "={{ $json.version }}",
+            "issue_date": "={{ $json.issue_date }}",
+            "expiration_date": "={{ $json.expiration_date }}",
+            "status": "={{ $json.status }}",
+            "source_file_url": "={{ $json.source_file_url }}",
+            "verified_at": "={{ $json.verified_at }}",
+            "verified_by": "={{ $json.verified_by }}"
+          },
+          "schema": [
+            {
+              "id": "document_id",
+              "displayName": "document_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "driver_id",
+              "displayName": "driver_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "document_type",
+              "displayName": "document_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "version",
+              "displayName": "version",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "issue_date",
+              "displayName": "issue_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "expiration_date",
+              "displayName": "expiration_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source_file_url",
+              "displayName": "source_file_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "verified_at",
+              "displayName": "verified_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "verified_by",
+              "displayName": "verified_by",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        }
+      },
+      "onError": "stopWorkflow",
+      "alwaysOutputData": false,
+      "executeOnce": false
     }
   ],
   "connections": {
@@ -191,6 +382,50 @@
         [
           {
             "node": "Clear Provider Simulations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear Provider Simulations": {
+      "main": [
+        [
+          {
+            "node": "Clear Renewals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear Renewals": {
+      "main": [
+        [
+          {
+            "node": "Clear Documents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear Documents": {
+      "main": [
+        [
+          {
+            "node": "Fixture Documents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fixture Documents": {
+      "main": [
+        [
+          {
+            "node": "Restore Fixture Documents",
             "type": "main",
             "index": 0
           }

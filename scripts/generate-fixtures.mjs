@@ -194,6 +194,12 @@ const testingEvents = [
   { event_id: 'T003', driver_id: 'D007', test_type: 'random', event_date: '2026-06-02', outcome: 'completed', recorded_by: VERIFIED_BY },
 ];
 
+// Only these people may approve or reject renewals (Phase 4). Fictional.
+const reviewers = [
+  { reviewer_email: VERIFIED_BY, full_name: 'Pat Reviewer (fictional compliance lead)', active: true },
+  { reviewer_email: 'former.reviewer@example.com', full_name: 'Former Reviewer (deactivated)', active: false },
+];
+
 const notificationsHeader = ['notification_id', 'driver_id', 'document_id', 'document_version', 'reminder_stage', 'intended_recipient', 'provider_message_id', 'status', 'attempted_at', 'error_detail'];
 const renewalsHeader = ['renewal_id', 'driver_id', 'document_type', 'submitted_expiration_date', 'submitted_file_url', 'status', 'submitted_at', 'reviewed_at', 'reviewed_by', 'rejection_reason'];
 
@@ -211,6 +217,7 @@ const files = {
   documents,
   settings,
   testing_events: testingEvents,
+  reviewers,
   expected_phase1: expected,
 };
 for (const [name, rows] of Object.entries(files)) {

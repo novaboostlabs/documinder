@@ -143,7 +143,7 @@
       "parameters": {
         "mode": "runOnceForAllItems",
         "language": "javaScript",
-        "jsCode": "// Phase 1 exit check: compare every classified row with documinder_test_expectations.\nconst rows = $input.all().map((i) => i.json);\nconst expected = $('Load Test Expectations').all().map((i) => i.json);\nconst byKey = new Map(rows.map((r) => [r.driver_id + ':' + r.document_type, r]));\n\nconst results = expected.map((e) => {\n  const a = byKey.get(e.driver_id + ':' + e.document_type);\n  const actualState = a ? a.state : '(no row)';\n  const actualStage = a ? a.reminder_stage || '' : '';\n  return {\n    driver: a ? a.full_name : e.driver_id,\n    document_type: e.document_type,\n    primary_fixture: e.primary_fixture === true,\n    expected: e.expected_state + (e.expected_stage ? ' / ' + e.expected_stage : ''),\n    actual: actualState + (actualStage ? ' / ' + actualStage : ''),\n    days_remaining: a ? a.days_remaining : null,\n    pass: actualState === e.expected_state && actualStage === (e.expected_stage || ''),\n  };\n});\nconst expectedKeys = new Set(expected.map((e) => e.driver_id + ':' + e.document_type));\nconst unexpectedRows = rows.filter((r) => !expectedKeys.has(r.driver_id + ':' + r.document_type));\n\nconst stateCounts = {};\nfor (const r of rows) stateCounts[r.state] = (stateCounts[r.state] || 0) + 1;\nconst failures = results.filter((r) => !r.pass);\n\nreturn [{\n  json: {\n    phase: 'Phase 1: classification engine',\n    reference_date: rows[0] ? rows[0].reference_date : null,\n    reference_source: rows[0] ? rows[0].reference_source : null,\n    exit_check: failures.length === 0 && unexpectedRows.length === 0 ? 'PASS' : 'FAIL',\n    checked: results.length,\n    passed: results.length - failures.length,\n    failed: failures.length + unexpectedRows.length,\n    state_counts: stateCounts,\n    primary_fixtures: results.filter((r) => r.primary_fixture),\n    failures,\n    unexpected_rows: unexpectedRows.map((r) => r.driver_id + ':' + r.document_type),\n  },\n}];\n"
+        "jsCode": "// Phase 1 exit check: compare every classified row with documinder_test_expectations.\nconst rows = $input.all().map((i) => i.json);\nconst expected = $('Load Test Expectations').all().map((i) => i.json);\nconst byKey = new Map(rows.map((r) => [r.driver_id + ':' + r.document_type, r]));\n\nconst results = expected.map((e) => {\n  const a = byKey.get(e.driver_id + ':' + e.document_type);\n  const actualState = a ? a.state : '(no row)';\n  const actualStage = a ? a.reminder_stage || '' : '';\n  return {\n    driver: a ? a.full_name : e.driver_id,\n    document_type: e.document_type,\n    primary_fixture: e.primary_fixture === true,\n    expected: e.expected_state + (e.expected_stage ? ' / ' + e.expected_stage : ''),\n    actual: actualState + (actualStage ? ' / ' + actualStage : ''),\n    days_remaining: a ? a.days_remaining : null,\n    pass: actualState === e.expected_state && actualStage === (e.expected_stage || ''),\n  };\n});\nconst expectedKeys = new Set(expected.map((e) => e.driver_id + ':' + e.document_type));\nconst unexpectedRows = rows.filter((r) => !expectedKeys.has(r.driver_id + ':' + r.document_type));\n\nconst stateCounts = {};\nfor (const r of rows) stateCounts[r.state] = (stateCounts[r.state] || 0) + 1;\nconst failures = results.filter((r) => !r.pass);\n\nreturn [{\n  json: {\n    phase: 'Phase 1: classification engine',\n    compares_against: 'the fixture baseline in data/fixtures. Approved renewals intentionally change results; run \"Documinder · Dev · Reset Demo Data\" to restore the baseline.',\n    reference_date: rows[0] ? rows[0].reference_date : null,\n    reference_source: rows[0] ? rows[0].reference_source : null,\n    exit_check: failures.length === 0 && unexpectedRows.length === 0 ? 'PASS' : 'FAIL',\n    checked: results.length,\n    passed: results.length - failures.length,\n    failed: failures.length + unexpectedRows.length,\n    state_counts: stateCounts,\n    primary_fixtures: results.filter((r) => r.primary_fixture),\n    failures,\n    unexpected_rows: unexpectedRows.map((r) => r.driver_id + ':' + r.document_type),\n  },\n}];\n"
       }
     },
     {
@@ -823,8 +823,8 @@
       "executeOnce": false
     },
     {
-      "id": "0f68c060-e967-4566-8427-c45401a1e7cb",
-      "name": "Sticky Note c33fbae0",
+      "id": "288bf452-5631-4503-b7de-28758397be4b",
+      "name": "Sticky Note f3f1ae48",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
@@ -839,8 +839,8 @@
       }
     },
     {
-      "id": "702b6784-40f7-4621-9321-bc42c5323e62",
-      "name": "Sticky Note c973dda3",
+      "id": "7cfc9df7-6940-46f7-a150-1dad289c348f",
+      "name": "Sticky Note fc1efe64",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
@@ -855,8 +855,8 @@
       }
     },
     {
-      "id": "3eb75d49-4495-4252-9e02-c2f5cd616b72",
-      "name": "Sticky Note b56f9e75",
+      "id": "0b450d96-bdf6-475a-b872-9ba4563da5fd",
+      "name": "Sticky Note 5792d60a",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
@@ -871,8 +871,8 @@
       }
     },
     {
-      "id": "e183554d-87ee-4f02-a115-afc9f57d48fa",
-      "name": "Sticky Note 3b1a371c",
+      "id": "70af69c9-fba6-42ab-8f33-ad6664e89849",
+      "name": "Sticky Note 19ab0b5e",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
@@ -887,8 +887,8 @@
       }
     },
     {
-      "id": "d5f2b150-cfe1-4354-9b3c-bde97a3a2f68",
-      "name": "Sticky Note 14fb59ef",
+      "id": "888c482d-1085-42cb-9d3e-d63e964374f7",
+      "name": "Sticky Note 5f24b5de",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
@@ -903,8 +903,8 @@
       }
     },
     {
-      "id": "b960ff67-ced7-43eb-b3c9-c8f68b20c2a1",
-      "name": "Sticky Note ec59a289",
+      "id": "4ed136e3-3e32-4161-8116-72ab45d41ba6",
+      "name": "Sticky Note e0d4a001",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [

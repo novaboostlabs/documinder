@@ -1,0 +1,3 @@
+reviewer_email,full_name,active
+compliance.reviewer@example.com,Pat Reviewer (fictional compliance lead),true
+former.reviewer@example.com,Former Reviewer (deactivated),false

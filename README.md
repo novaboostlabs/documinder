@@ -14,22 +14,37 @@ Documinder checks the credentials every employee must hold each day. It sends th
 |---|---|---|---|
 | 1 | Finds a document at the correct reminder stage and produces a safe **test** reminder | 1–2 | ✅ Classification (84/84) and test-inbox previews in n8n |
 | 2 | Re-running does **not** duplicate a reminder for the same driver + document version + stage | 2 | ✅ Run 1: 9 created · runs 2–3: 0 created, 9 skipped |
-| 3 | An approved renewal creates a new document version and closes reminders for the old one | 4 | ⬜ |
+| 3 | An approved renewal creates a new document version and closes reminders for the old one | 4 | ✅ v1 archived, v2 verified, 0 rows deleted, old reminder closed |
 | 4 | A failed or uncertain email delivery shows up for staff review instead of failing silently | 3 | ✅ Failure → retried · timeout → held · both queued |
 
 ## See it without installing anything
 
 | What | Where |
 |---|---|
-| The n8n workflow (import it into any n8n 2.x) | [`workflows/daily-review.json`](workflows/daily-review.json) |
+| The n8n workflows (import them into any n8n 2.x) | [`daily-review.json`](workflows/daily-review.json) · [`renewals.json`](workflows/renewals.json) · [`reset-demo.json`](workflows/reset-demo.json) |
 | The classification logic in the **Classify Credentials** node | [`src/documinder-core.js`](src/documinder-core.js) |
 | A real n8n run: 84/84 checks passed | [`docs/evidence/phase1-test-report.json`](docs/evidence/phase1-test-report.json) |
 | Dedup proof: 3 runs, 9 previews created once, 0 duplicates | [`docs/evidence/phase2-dedup-report.json`](docs/evidence/phase2-dedup-report.json) |
 | Reminder templates and dedup logic | [`src/documinder-reminders.js`](src/documinder-reminders.js) |
 | Delivery proof: 7 real sends, a simulated failure, and a simulated timeout over 2 runs | [`docs/evidence/phase3-delivery-report.json`](docs/evidence/phase3-delivery-report.json) |
 | Provider-outcome rules and staff-review queue | [`src/documinder-delivery.js`](src/documinder-delivery.js) |
+| Renewal proof: 4 submissions, 6 reviews, before/after document tables | [`docs/evidence/phase4-renewal-report.json`](docs/evidence/phase4-renewal-report.json) |
+| Renewal intake and review rules | [`src/documinder-renewals.js`](src/documinder-renewals.js) |
 | Every fixture and its expected result | [`docs/test-plan.md`](docs/test-plan.md) |
 | How Claude Code built and tested the workflow through n8n's MCP server | [`docs/setup.md`](docs/setup.md) · [`scripts/n8n-mcp.mjs`](scripts/n8n-mcp.mjs) |
+
+**Phase 4 result:** renewals come in through an n8n form, and a compliance reviewer decides through a second form.
+
+| Step | What happened |
+|---|---|
+| Taylor submits a renewed TWIC | Stored as `pending_review`. The documents table stayed **identical** |
+| Taylor submits again | Recognized as a duplicate, so nothing new was stored |
+| Morgan Reed submits an already-past date | `invalid_submission`, with the reasons recorded |
+| An unknown reviewer, then a deactivated one, tries to approve | Refused |
+| The compliance reviewer approves Taylor | TWIC **v2** created as verified, **v1 archived (not deleted)**, the old `uncertain` reminder closed (status kept), its staff-review item resolved |
+| Approving Taylor again | Refused, since each renewal can be reviewed only once |
+| The reviewer rejects Morgan Reed, with a reason | Reason recorded, verified expiration **unchanged** |
+| The next daily review | Taylor's TWIC is `current`, and no reminder is due |
 
 **Phase 3 result:** reminders are sent for real through Gmail SMTP, always to the test inbox while `preview_only` is on. Two outcomes were simulated to test the edge cases:
 
@@ -85,7 +100,7 @@ flowchart LR
 
 **Workflow A (daily review):** load settings → active drivers → role requirements → latest *verified* document version → validate the date → count whole calendar days remaining in the business timezone → classify → work out the due reminder stage → check notification history → send a preview → record the result → route failures → print a run summary.
 
-**Workflow B (renewal intake):** a renewal is submitted → stored as `pending_review` → a reviewer approves or rejects it → on approval, the old version is archived, a new verified version is created, and the old version's reminders are closed. On rejection, the verified document is left unchanged and the reason is recorded.
+**Workflow B (renewal intake, two n8n forms):** a renewal is submitted → stored as `pending_review` → a reviewer approves or rejects it → on approval, the old version is archived, a new verified version is created, and the old version's reminders are closed. On rejection, the verified document is left unchanged and the reason is recorded.
 
 ### Reminder policy
 
@@ -109,6 +124,7 @@ The workflow also flags `missing`, `invalid_date`, `inactive_skipped`, and `not_
 - **Missed stages aren't replayed.** Only the current stage is sent. A driver found at 45 days gets `D60`, never `D90` and `D60` together.
 - **Endorsements never get invented dates.** An endorsement with no expiration date inherits the CDL date, and the output records that it did (`inherited_from_cdl:DOC…`).
 - **Dedup key:** `driver_id + document_id + document_version + reminder_stage`.
+- **History is never destroyed.** A renewal adds a version and archives the old one. Rejections and duplicate submissions change nothing, and each renewal can be approved only once.
 - **Timeouts and unknown provider responses count as `uncertain`.** They are never retried automatically, and the Send node has n8n's own retry turned off.
 - **Record before sending.** Each reminder is saved as `pending` before the provider is called. If a run dies mid-send, the leftover `pending` row blocks a resend and goes to staff review.
 - **Preview mode** sends every message only to the designated test inbox. The Send node re-checks this itself, so a planner bug still can't reach a real driver.
@@ -140,12 +156,12 @@ To run the n8n side locally and connect Claude Code through n8n's built-in MCP s
 - [x] **Phase 1, classification engine.** Data tables, fixtures, days-remaining math, and classification. Exit check: every fixture classifies correctly on repeated runs. ✅ Passed in n8n (84/84, 3 runs).
 - [x] **Phase 2, safe reminder preview.** Notification history and dedup. Exit check: the second identical run creates zero duplicates. ✅ Passed in n8n (run 1: 9 created; runs 2–3: 0 created).
 - [x] **Phase 3, reliability.** Success, failure, and uncertain outcomes, a staff-review queue, and a run summary. ✅ Passed in n8n (failure retried, timeout held, both queued).
-- [ ] **Phase 4, renewal loop.** Versioning, approve/reject, and closing reminders for superseded versions.
+- [x] **Phase 4, renewal loop.** Versioning, approve/reject, and closing reminders for superseded versions. ✅ Passed in n8n (62 rows after approval, 0 deleted; rejection changed nothing).
 - [ ] **Phase 5, portfolio evidence.** A 3–5 minute demo and a one-page [case study](docs/case-study.md).
 
 ## Tools
 
-n8n (self-hosted, Data Tables, Code node, Send Email/SMTP, error branches) · Gmail SMTP · JavaScript · Node test runner · Claude Code with the n8n MCP server · GitHub
+n8n (self-hosted, Data Tables, Code node, Send Email/SMTP, error branches, Form Triggers) · Gmail SMTP · JavaScript · Node test runner · Claude Code with the n8n MCP server · GitHub
 
 ## License
 

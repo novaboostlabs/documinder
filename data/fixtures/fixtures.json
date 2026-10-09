@@ -1048,6 +1048,18 @@
       "recorded_by": "compliance.reviewer@example.com"
     }
   ],
+  "reviewers": [
+    {
+      "reviewer_email": "compliance.reviewer@example.com",
+      "full_name": "Pat Reviewer (fictional compliance lead)",
+      "active": true
+    },
+    {
+      "reviewer_email": "former.reviewer@example.com",
+      "full_name": "Former Reviewer (deactivated)",
+      "active": false
+    }
+  ],
   "expected_phase1": [
     {
       "driver_id": "D001",
