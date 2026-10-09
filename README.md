@@ -1,5 +1,7 @@
 # Documinder
 
+[![tests](https://github.com/novaboostlabs/documinder/actions/workflows/test.yml/badge.svg)](https://github.com/novaboostlabs/documinder/actions/workflows/test.yml)
+
 **Credential-expiration monitoring and renewal workflow, built in n8n.**
 
 Documinder checks the credentials every employee must hold each day. It sends the right reminder at the right time, records every action, and routes renewals and delivery failures to a person for review. The first demo uses a trucking fleet (CDL, medical certificate, TWIC, endorsements, safety training). The data model also works for construction, healthcare, field service, legal operations, or any regulated team that tracks expiring credentials.
@@ -10,10 +12,39 @@ Documinder checks the credentials every employee must hold each day. It sends th
 
 | # | Proof case | Phase | Status |
 |---|---|---|---|
-| 1 | Finds a document at the correct reminder stage and produces a safe **test** reminder | 1–2 | 🟡 Classification logic passes locally |
+| 1 | Finds a document at the correct reminder stage and produces a safe **test** reminder | 1–2 | 🟡 Classification ✅ (84/84 in n8n). Preview reminder is Phase 2 |
 | 2 | Re-running does **not** duplicate a reminder for the same driver + document version + stage | 2 | ⬜ |
 | 3 | An approved renewal creates a new document version and closes reminders for the old one | 4 | ⬜ |
 | 4 | A failed or uncertain email delivery shows up for staff review instead of failing silently | 3 | ⬜ |
+
+## See it without installing anything
+
+| What | Where |
+|---|---|
+| The n8n workflow (import it into any n8n 2.x) | [`workflows/daily-review.json`](workflows/daily-review.json) |
+| The classification logic in the **Classify Credentials** node | [`src/documinder-core.js`](src/documinder-core.js) |
+| A real n8n run: 84/84 checks passed | [`docs/evidence/phase1-test-report.json`](docs/evidence/phase1-test-report.json) |
+| Every fixture and its expected result | [`docs/test-plan.md`](docs/test-plan.md) |
+| How Claude Code built and tested the workflow through n8n's MCP server | [`docs/setup.md`](docs/setup.md) · [`scripts/n8n-mcp.mjs`](scripts/n8n-mcp.mjs) |
+
+**Phase 1 result** (n8n execution, reference date 2026-10-15, America/Los_Angeles):
+
+| Driver | Credential | Days left | Result |
+|---|---|---|---|
+| Maya Torres | CDL | 156 | `current`, no reminder |
+| Jordan Lee | Medical cert (v2; v1 archived) | 90 | `approaching_expiry` · **D90** |
+| Chris Bennett | TWIC | 60 | `approaching_expiry` · **D60** |
+| Renee Patel | Hazmat endorsement | 30 | `urgent` · **D30** |
+| Luis Alvarez | Medical cert | 14 | `urgent` · **D14** |
+| Taylor Morgan | TWIC | 7 | `critical` · **D7** |
+| Casey Brooks | CDL (+ endorsements inherit its date) | 0 | `expires_today` · **D0** |
+| Morgan Reed | Medical cert | −5 | `overdue` · **OVERDUE** |
+| Jamie Kim | CDL | — | `inactive_skipped` |
+| Avery Johnson | Hazmat endorsement | — | `not_applicable` (not "missing") |
+| Sam Rivera | TWIC | — | `missing` → staff review |
+| Drew Collins | Medical cert `2026-02-30` | — | `invalid_date` → staff review |
+
+The workflow returned `exit_check: PASS` with 84/84 rows matching on three separate runs. The other 72 rows are each driver's remaining credentials, and every one matched its expected state as well.
 
 ## How it works
 
@@ -66,8 +97,8 @@ docs/                     Build brief, setup guide, data model, test plan, case 
 data/fixtures/            Fictional drivers, requirements, documents, settings (CSV + JSON)
 src/documinder-core.js    Deterministic classification engine (shared with n8n)
 tests/                    Node test suite: every fixture vs its expected result
-scripts/                  Fixture generator and n8n data-table loader
-workflows/                Exported n8n workflow JSON
+scripts/                  Fixture generator, workflow builder, data-table loader, MCP client
+workflows/                Exported n8n workflow JSON + the SDK source it was built from
 ```
 
 ## Run it
@@ -82,7 +113,7 @@ To run the n8n side locally and connect Claude Code through n8n's built-in MCP s
 
 ## Build phases
 
-- [ ] **Phase 1, classification engine.** Data tables, fixtures, days-remaining math, and classification. Exit check: every fixture classifies correctly on repeated runs.
+- [x] **Phase 1, classification engine.** Data tables, fixtures, days-remaining math, and classification. Exit check: every fixture classifies correctly on repeated runs. ✅ Passed in n8n (84/84, 3 runs).
 - [ ] **Phase 2, safe reminder preview.** Notification history and dedup. Exit check: the second identical run creates zero duplicates.
 - [ ] **Phase 3, reliability.** Success, failure, and uncertain outcomes, a staff-review queue, and a run summary.
 - [ ] **Phase 4, renewal loop.** Versioning, approve/reject, and closing reminders for superseded versions.

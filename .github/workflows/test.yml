@@ -1,0 +1,18 @@
+name: tests
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test
+      - name: Workflow SDK code is in sync with src/documinder-core.js
+        run: |
+          node scripts/build-workflow.mjs
+          git diff --exit-code workflows/daily-review.sdk.js

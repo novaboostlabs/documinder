@@ -14,4 +14,5 @@ Read `docs/Documinder_Build_Brief.md` first. It is the source of truth.
 - Local n8n 2.42.6 at http://localhost:5678, installed in `~/n8n-local` with a private Node 24 (n8n won't run on Node 26). Start it with `scripts/start-n8n.sh`.
 - Claude Code talks to n8n through n8n's **built-in** MCP server (`/mcp-server/http`), registered by `scripts/connect-mcp.sh`.
 - Data tables use the `documinder_` prefix. See `docs/data-model.md`. Reload fixtures with `node scripts/load-fixtures.mjs` (REST API) or the MCP `add_data_table_rows` tool.
-- After changing the workflow in n8n, export it to `workflows/` and commit it.
+- Workflow changes: edit `scripts/build-workflow.mjs` or `src/`, run `node scripts/build-workflow.mjs`, push with MCP `validate_workflow` and then `update_workflow`, re-run, and export `workflows/daily-review.json`. `scripts/n8n-mcp.mjs` calls MCP tools from the terminal.
+- Live workflow: "Documinder · A · Daily Review" (id MHC2jTQjXDrkaNW5), unpublished.

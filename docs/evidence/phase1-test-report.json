@@ -1,0 +1,142 @@
+{
+  "phase": "Phase 1: classification engine",
+  "reference_date": "2026-10-15",
+  "reference_source": "test_reference_date",
+  "exit_check": "PASS",
+  "checked": 84,
+  "passed": 84,
+  "failed": 0,
+  "state_counts": {
+    "current": 44,
+    "not_applicable": 22,
+    "approaching_expiry": 2,
+    "urgent": 2,
+    "critical": 1,
+    "expires_today": 3,
+    "overdue": 1,
+    "inactive_skipped": 7,
+    "missing": 1,
+    "invalid_date": 1
+  },
+  "reminders_due": 9,
+  "staff_review_needed": 6,
+  "primary_fixtures": [
+    {
+      "driver": "Maya Torres",
+      "document_type": "CDL",
+      "primary_fixture": true,
+      "expected": "current",
+      "actual": "current",
+      "days_remaining": 156,
+      "pass": true
+    },
+    {
+      "driver": "Jordan Lee",
+      "document_type": "MEDICAL_CERT",
+      "primary_fixture": true,
+      "expected": "approaching_expiry / D90",
+      "actual": "approaching_expiry / D90",
+      "days_remaining": 90,
+      "pass": true
+    },
+    {
+      "driver": "Chris Bennett",
+      "document_type": "TWIC",
+      "primary_fixture": true,
+      "expected": "approaching_expiry / D60",
+      "actual": "approaching_expiry / D60",
+      "days_remaining": 60,
+      "pass": true
+    },
+    {
+      "driver": "Renee Patel",
+      "document_type": "HAZMAT_ENDORSEMENT",
+      "primary_fixture": true,
+      "expected": "urgent / D30",
+      "actual": "urgent / D30",
+      "days_remaining": 30,
+      "pass": true
+    },
+    {
+      "driver": "Luis Alvarez",
+      "document_type": "MEDICAL_CERT",
+      "primary_fixture": true,
+      "expected": "urgent / D14",
+      "actual": "urgent / D14",
+      "days_remaining": 14,
+      "pass": true
+    },
+    {
+      "driver": "Taylor Morgan",
+      "document_type": "TWIC",
+      "primary_fixture": true,
+      "expected": "critical / D7",
+      "actual": "critical / D7",
+      "days_remaining": 7,
+      "pass": true
+    },
+    {
+      "driver": "Casey Brooks",
+      "document_type": "CDL",
+      "primary_fixture": true,
+      "expected": "expires_today / D0",
+      "actual": "expires_today / D0",
+      "days_remaining": 0,
+      "pass": true
+    },
+    {
+      "driver": "Morgan Reed",
+      "document_type": "MEDICAL_CERT",
+      "primary_fixture": true,
+      "expected": "overdue / OVERDUE",
+      "actual": "overdue / OVERDUE",
+      "days_remaining": -5,
+      "pass": true
+    },
+    {
+      "driver": "Jamie Kim",
+      "document_type": "CDL",
+      "primary_fixture": true,
+      "expected": "inactive_skipped",
+      "actual": "inactive_skipped",
+      "days_remaining": null,
+      "pass": true
+    },
+    {
+      "driver": "Avery Johnson",
+      "document_type": "HAZMAT_ENDORSEMENT",
+      "primary_fixture": true,
+      "expected": "not_applicable",
+      "actual": "not_applicable",
+      "days_remaining": null,
+      "pass": true
+    },
+    {
+      "driver": "Sam Rivera",
+      "document_type": "TWIC",
+      "primary_fixture": true,
+      "expected": "missing",
+      "actual": "missing",
+      "days_remaining": null,
+      "pass": true
+    },
+    {
+      "driver": "Drew Collins",
+      "document_type": "MEDICAL_CERT",
+      "primary_fixture": true,
+      "expected": "invalid_date",
+      "actual": "invalid_date",
+      "days_remaining": null,
+      "pass": true
+    }
+  ],
+  "failures": [],
+  "unexpected_rows": [],
+  "_execution": {
+    "id": "1",
+    "workflow": "Documinder \u00b7 A \u00b7 Daily Review",
+    "mode": "manual",
+    "status": "success",
+    "startedAt": "2026-10-09T09:37:25.046Z"
+  }
+}

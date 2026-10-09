@@ -26,7 +26,9 @@ The full expectation set has **84 rows** (12 drivers × 7 credential types) in [
 - every credential of the inactive driver comes out `inactive_skipped`;
 - every `required = false` row comes out `not_applicable`.
 
-**Exit check:** the n8n "Phase 1 test report" node shows `failed: 0`, and the result is the same on a second run. `npm test` checks the same logic outside n8n.
+**Exit check:** the n8n "Phase 1 Test Report" node shows `failed: 0`, and the result is the same on a second run. `npm test` checks the same logic outside n8n.
+
+**Result (2026-10-09):** ✅ PASS. n8n executions #1, #2, and #3 each returned `checked: 84, passed: 84, failed: 0`. The output of execution #1 is saved in [`evidence/phase1-test-report.json`](evidence/phase1-test-report.json).
 
 ## Phase 2: dedup *(planned)*
 
