@@ -101,7 +101,7 @@
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
       "position": [
-        1200,
+        1440,
         300
       ],
       "parameters": {
@@ -122,7 +122,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1440,
+        1680,
         300
       ],
       "parameters": {
@@ -137,7 +137,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1680,
+        1920,
         300
       ],
       "parameters": {
@@ -147,8 +147,24 @@
       }
     },
     {
-      "id": "9d4c813d-1705-40aa-977e-3a0868d44e17",
-      "name": "Sticky Note 315e9b16",
+      "id": "08e9a1cd-74a5-4fc6-b106-5f04585d9dc6",
+      "name": "Sticky Note 002c9400",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1860,
+        540
+      ],
+      "parameters": {
+        "content": "## 4 · Reminder preview + dedup (Phase 2)\nDue stages get a fixed-template reminder (no AI). While **preview_only** is on, every message is addressed to the **test inbox**; the real driver/manager is only recorded as intended_recipient.\n\nDedup key: driver | document | version | stage. A reminder is created only if no attempt with that key is previewed, sent, or uncertain. failed can retry.\n\nSource: src/documinder-reminders.js",
+        "color": 3,
+        "width": 760,
+        "height": 640
+      }
+    },
+    {
+      "id": "8b5cec48-0964-45ce-b841-202a283192d4",
+      "name": "Sticky Note 87769edd",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
@@ -156,15 +172,15 @@
         -20
       ],
       "parameters": {
-        "content": "## Documinder · Daily Review\nChecks every required credential for every driver, then classifies it with plain date math (no AI).\n\n**Phase 1:** classification only. There is no email, no AI node, and no schedule, and the workflow is not published.\n\nFictional data only. Reference date comes from documinder_settings.test_reference_date (2026-10-15, America/Los_Angeles).",
+        "content": "## Documinder · Daily Review\nChecks every required credential for every driver, then classifies it with plain date math (no AI).\n\n**Phases 1–2:** classification, then preview reminders with dedup. Nothing is actually sent, and there is no AI node and no schedule. The workflow is not published.\n\nFictional data only. Reference date comes from documinder_settings.test_reference_date (2026-10-15, America/Los_Angeles).",
         "color": 4,
         "width": 300,
         "height": 480
       }
     },
     {
-      "id": "d6e48a70-dcad-4bd8-8fbd-541a6c66f553",
-      "name": "Sticky Note 01149b4e",
+      "id": "ce6e2d35-27cf-4fff-8561-733b62a5dc99",
+      "name": "Sticky Note aa0d99e0",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
@@ -172,19 +188,19 @@
         -20
       ],
       "parameters": {
-        "content": "## 1 · Load\nSettings, drivers, role requirements, every document version, and the expected test results come from n8n Data Tables. Each load runs once (executeOnce) so items never multiply.",
+        "content": "## 1 · Load\nSettings, drivers, role requirements, every document version, notification history, and the expected test results come from n8n Data Tables. Each load runs once (executeOnce) so items never multiply.",
         "color": 7,
-        "width": 1140,
+        "width": 1380,
         "height": 480
       }
     },
     {
-      "id": "e425203e-b974-4f00-a445-4e1d7919e479",
-      "name": "Sticky Note 7f8bc3b4",
+      "id": "ab54b2f2-135d-427a-ada7-f2bac4bd9c40",
+      "name": "Sticky Note f8685a1d",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        1380,
+        1620,
         -20
       ],
       "parameters": {
@@ -195,12 +211,12 @@
       }
     },
     {
-      "id": "32cc9305-d470-4b10-a317-29283bfca63e",
-      "name": "Sticky Note fb775cc3",
+      "id": "86de76c8-eeaa-472e-b85f-a8d20350a3ab",
+      "name": "Sticky Note 4e64992a",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        1640,
+        1880,
         -20
       ],
       "parameters": {
@@ -209,6 +225,293 @@
         "width": 240,
         "height": 480
       }
+    },
+    {
+      "id": "14b85f8a-892b-4fc2-b73a-d2aa11110c37",
+      "name": "Load Notification History",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1200,
+        300
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "documinder_notifications"
+        },
+        "returnAll": true
+      },
+      "alwaysOutputData": true,
+      "executeOnce": true
+    },
+    {
+      "id": "45f882d1-f332-451b-a107-8b2e5eebd30c",
+      "name": "Plan Reminders (dedup)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1920,
+        760
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Documinder reminders — Phase 2: compose preview reminders and deduplicate them\n// against notification history. Deterministic templates, no LLM.\n//\n// Runs in Node tests (tests/reminders.test.mjs) and in the n8n\n// \"Plan Reminders (dedup)\" Code node (embedded by scripts/build-workflow.mjs).\n\n// Statuses that mean \"this reminder already went out, or may have\": never create another.\n// A 'failed' attempt does not block, so it can be retried. 'closed' belongs to a superseded version.\nconst BLOCKING_STATUSES = ['previewed', 'sent', 'uncertain'];\n\nconst DOCUMENT_LABELS = {\n  CDL: 'Commercial Driver\\'s License (CDL)',\n  MEDICAL_CERT: 'Medical Examiner\\'s Certificate',\n  TWIC: 'TWIC card',\n  HAZMAT_ENDORSEMENT: 'Hazmat endorsement',\n  TANKER_ENDORSEMENT: 'Tanker endorsement',\n  DOUBLES_TRIPLES_ENDORSEMENT: 'Doubles/triples endorsement',\n  SAFETY_TRAINING: 'Defensive-driving / safety training',\n};\n\nconst MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];\n\nfunction formatDate(iso) {\n  const [y, m, d] = String(iso).split('-').map(Number);\n  return `${MONTHS[m - 1]} ${d}, ${y}`;\n}\n\nfunction whenPhrase(days) {\n  if (days > 1) return `in ${days} days`;\n  if (days === 1) return 'tomorrow';\n  if (days === 0) return 'today';\n  return `${-days} day${days === -1 ? '' : 's'} ago`;\n}\n\n// Who the reminder is meant for, by stage. Overdue goes to staff only (no repeated driver emails).\nfunction audienceFor(stage) {\n  if (stage === 'OVERDUE') return 'staff';\n  if (stage === 'D0') return 'driver_and_staff';\n  return 'driver';\n}\n\nfunction composeReminder(row, driver, settings) {\n  const label = DOCUMENT_LABELS[row.document_type] || row.document_type;\n  const audience = audienceFor(row.reminder_stage);\n  const when = whenPhrase(row.days_remaining);\n  const expires = formatDate(row.expiration_date);\n  const inherited = String(row.expiration_source || '').startsWith('inherited_from_cdl')\n    ? ' (this endorsement shares your CDL expiration date)'\n    : '';\n\n  const recipients = [];\n  if (audience !== 'staff') recipients.push(driver.email);\n  if (audience !== 'driver') recipients.push(driver.manager_email);\n\n  let subject;\n  let lines;\n  if (audience === 'staff') {\n    subject = `Staff escalation: ${driver.full_name}'s ${label} expired ${when}`;\n    lines = [\n      `${driver.full_name} (${driver.driver_id}) has an expired ${label}.`,\n      `Expiration date: ${expires}${inherited}.`,\n      'Please follow up with the driver and record a renewal. Documinder will not keep emailing the driver about this.',\n    ];\n  } else {\n    const urgency = { D90: 'Heads-up', D60: 'Reminder', D30: 'Action needed', D14: 'Action needed', D7: 'Final reminder', D0: 'Expires today' }[row.reminder_stage] || 'Reminder';\n    subject = row.reminder_stage === 'D0'\n      ? `Expires today: your ${label}`\n      : `${urgency}: your ${label} expires ${when}`;\n    lines = [\n      `Hi ${driver.full_name.split(' ')[0]},`,\n      `Your ${label} expires ${when}, on ${expires}${inherited}.`,\n      'Please submit your renewed document so the compliance team can verify it.',\n    ];\n    if (audience === 'driver_and_staff') lines.push(`Your manager (${driver.manager_email}) has been copied.`);\n  }\n\n  return { audience, recipients, subject, body: lines.join('\\n\\n') };\n}\n\n// Decides, for every row with a due reminder stage, whether to create a new preview\n// notification or skip it because a blocking attempt already exists.\nfunction planNotifications({ rows, drivers, settings, history, now = new Date(), runId = 'local' }) {\n  const previewOnly = settings.preview_only === true || settings.preview_only === 'true';\n  if (previewOnly && !String(settings.test_recipient || '').trim()) {\n    throw new Error('preview_only is on but Settings.test_recipient is empty; refusing to address any reminder.');\n  }\n\n  const blocked = new Set(\n    history\n      .filter((n) => n && n.dedup_key && BLOCKING_STATUSES.includes(n.status))\n      .map((n) => n.dedup_key),\n  );\n  const driversById = new Map(drivers.map((d) => [d.driver_id, d]));\n  const attemptedAt = now.toISOString();\n  const plans = [];\n  let seq = 0;\n\n  for (const row of rows) {\n    if (!row.reminder_stage || !row.dedup_key) continue;\n    const driver = driversById.get(row.driver_id);\n    const base = {\n      dedup_key: row.dedup_key,\n      driver_id: row.driver_id,\n      full_name: row.full_name,\n      document_id: row.document_id,\n      document_type: row.document_type,\n      document_version: row.document_version,\n      reminder_stage: row.reminder_stage,\n      days_remaining: row.days_remaining,\n    };\n\n    if (blocked.has(row.dedup_key)) {\n      plans.push({ ...base, decision: 'skip_duplicate' });\n      continue;\n    }\n    blocked.add(row.dedup_key); // never plan the same key twice in one run\n\n    const msg = composeReminder(row, driver, settings);\n    const intended = msg.recipients.join(', ');\n    seq += 1;\n    plans.push({\n      ...base,\n      decision: 'create',\n      notification: {\n        notification_id: `NTF-${runId}-${String(seq).padStart(3, '0')}`,\n        driver_id: row.driver_id,\n        document_id: row.document_id,\n        document_version: row.document_version,\n        reminder_stage: row.reminder_stage,\n        dedup_key: row.dedup_key,\n        audience: msg.audience,\n        intended_recipient: intended,\n        delivered_to: previewOnly ? settings.test_recipient : intended,\n        delivery_mode: previewOnly ? 'preview' : 'live',\n        subject: (previewOnly ? `[PREVIEW for ${intended}] ` : '') + msg.subject,\n        body: msg.body,\n        from_name: settings.reminder_from_name || 'Documinder',\n        provider_message_id: '',\n        status: 'previewed',\n        attempted_at: attemptedAt,\n        error_detail: '',\n      },\n    });\n  }\n  return plans;\n}\n\nfunction summarizePlans(plans) {\n  const created = plans.filter((p) => p.decision === 'create');\n  return {\n    reminders_due: plans.length,\n    created: created.length,\n    skipped_duplicates: plans.length - created.length,\n    created_by_stage: created.reduce((acc, p) => ({ ...acc, [p.reminder_stage]: (acc[p.reminder_stage] || 0) + 1 }), {}),\n  };\n}\n\n// ---------- n8n glue ----------\n// One item per due reminder stage, each with decision = create | skip_duplicate.\nconst settings = $('Load Settings').first().json;\nconst drivers = $('Load Drivers').all().map((i) => i.json);\n// Empty table on the first run: n8n emits one empty item, so keep only real rows.\nconst history = $('Load Notification History').all().map((i) => i.json).filter((n) => n.dedup_key);\nconst rows = $input.all().map((i) => i.json);\n\nconst plans = planNotifications({ rows, drivers, settings, history, runId: $execution.id });\nreturn plans.map((p) => ({\n  json: {\n    decision: p.decision,\n    full_name: p.full_name,\n    document_type: p.document_type,\n    days_remaining: p.days_remaining,\n    ...(p.notification || { dedup_key: p.dedup_key, driver_id: p.driver_id, reminder_stage: p.reminder_stage }),\n  },\n}));\n"
+      },
+      "alwaysOutputData": false,
+      "executeOnce": false
+    },
+    {
+      "id": "89b1e69e-7410-4797-91d8-ea34bdee3ac2",
+      "name": "New Reminder?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2160,
+        760
+      ],
+      "parameters": {
+        "conditions": {
+          "combinator": "and",
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.decision }}",
+              "rightValue": "create",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        }
+      },
+      "alwaysOutputData": false,
+      "executeOnce": false
+    },
+    {
+      "id": "41067880-95e2-476d-9b7a-2663c1243205",
+      "name": "Record Preview Notification",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2400,
+        700
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "documinder_notifications"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "notification_id": "={{ $json.notification_id }}",
+            "driver_id": "={{ $json.driver_id }}",
+            "document_id": "={{ $json.document_id }}",
+            "document_version": "={{ $json.document_version }}",
+            "reminder_stage": "={{ $json.reminder_stage }}",
+            "dedup_key": "={{ $json.dedup_key }}",
+            "audience": "={{ $json.audience }}",
+            "intended_recipient": "={{ $json.intended_recipient }}",
+            "delivered_to": "={{ $json.delivered_to }}",
+            "delivery_mode": "={{ $json.delivery_mode }}",
+            "subject": "={{ $json.subject }}",
+            "body": "={{ $json.body }}",
+            "from_name": "={{ $json.from_name }}",
+            "provider_message_id": "={{ $json.provider_message_id }}",
+            "status": "={{ $json.status }}",
+            "attempted_at": "={{ $json.attempted_at }}",
+            "error_detail": "={{ $json.error_detail }}"
+          },
+          "schema": [
+            {
+              "id": "notification_id",
+              "displayName": "notification_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "driver_id",
+              "displayName": "driver_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "document_id",
+              "displayName": "document_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "document_version",
+              "displayName": "document_version",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reminder_stage",
+              "displayName": "reminder_stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "dedup_key",
+              "displayName": "dedup_key",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "audience",
+              "displayName": "audience",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "intended_recipient",
+              "displayName": "intended_recipient",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "delivered_to",
+              "displayName": "delivered_to",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "delivery_mode",
+              "displayName": "delivery_mode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "body",
+              "displayName": "body",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "from_name",
+              "displayName": "from_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "provider_message_id",
+              "displayName": "provider_message_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "attempted_at",
+              "displayName": "attempted_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "error_detail",
+              "displayName": "error_detail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        }
+      },
+      "alwaysOutputData": false,
+      "executeOnce": false
+    },
+    {
+      "id": "b708f1d7-bb02-4105-9469-cbceb64b41cc",
+      "name": "Phase 2 Run Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2160,
+        1000
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Phase 2 run summary: what was due, what was created, what dedup skipped.\nconst plans = $input.all().map((i) => i.json);\nconst created = plans.filter((p) => p.decision === 'create');\nconst skipped = plans.filter((p) => p.decision === 'skip_duplicate');\nconst history = $('Load Notification History').all().map((i) => i.json).filter((n) => n.dedup_key);\nconst settings = $('Load Settings').first().json;\n\n// Integrity check: after this run, no dedup key may have more than one blocking attempt.\nconst blocking = ['previewed', 'sent', 'uncertain'];\nconst counts = {};\nfor (const n of [...history, ...created]) {\n  if (blocking.includes(n.status)) counts[n.dedup_key] = (counts[n.dedup_key] || 0) + 1;\n}\nconst duplicateKeys = Object.keys(counts).filter((k) => counts[k] > 1);\n\nreturn [{\n  json: {\n    phase: 'Phase 2: safe reminder preview + dedup',\n    run_at: $now.toISO(),\n    preview_only: settings.preview_only,\n    all_previews_delivered_to: settings.test_recipient,\n    reminders_due: plans.length,\n    created: created.length,\n    skipped_duplicates: skipped.length,\n    history_before_run: history.length,\n    duplicate_keys_after_run: duplicateKeys,\n    dedup_integrity: duplicateKeys.length === 0 ? 'OK' : 'DUPLICATES FOUND',\n    created_reminders: created.map((p) => ({ stage: p.reminder_stage, driver: p.full_name, document: p.document_type, intended: p.intended_recipient, subject: p.subject })),\n    skipped_keys: skipped.map((p) => p.dedup_key),\n  },\n}];\n"
+      },
+      "alwaysOutputData": false,
+      "executeOnce": false
     }
   ],
   "connections": {
@@ -256,17 +559,6 @@
         ]
       ]
     },
-    "Load Documents": {
-      "main": [
-        [
-          {
-            "node": "Load Test Expectations",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Load Test Expectations": {
       "main": [
         [
@@ -283,6 +575,60 @@
         [
           {
             "node": "Phase 1 Test Report",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Plan Reminders (dedup)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Documents": {
+      "main": [
+        [
+          {
+            "node": "Load Notification History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Notification History": {
+      "main": [
+        [
+          {
+            "node": "Load Test Expectations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Plan Reminders (dedup)": {
+      "main": [
+        [
+          {
+            "node": "New Reminder?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Phase 2 Run Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New Reminder?": {
+      "main": [
+        [
+          {
+            "node": "Record Preview Notification",
             "type": "main",
             "index": 0
           }

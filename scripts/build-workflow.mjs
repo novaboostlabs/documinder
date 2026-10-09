@@ -12,10 +12,11 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const core = readFileSync(join(root, 'src/documinder-core.js'), 'utf8');
-
 // Drop the Node-only export block; everything else runs unchanged in the Code node.
-const coreForN8n = core.replace(/\/\* n8n-export-start \*\/[\s\S]*\/\* n8n-export-end \*\//, '').trim();
+const forN8n = (file) =>
+  readFileSync(join(root, file), 'utf8').replace(/\/\* n8n-export-start \*\/[\s\S]*\/\* n8n-export-end \*\//, '').trim();
+const coreForN8n = forN8n('src/documinder-core.js');
+const remindersForN8n = forN8n('src/documinder-reminders.js');
 
 const classifyCode = `${coreForN8n}
 
@@ -75,7 +76,75 @@ return [{
 }];
 `;
 
-const loadNode = (varName, name, table, x, extra = '') => `const ${varName} = node({
+const planCode = `${remindersForN8n}
+
+// ---------- n8n glue ----------
+// One item per due reminder stage, each with decision = create | skip_duplicate.
+const settings = $('Load Settings').first().json;
+const drivers = $('Load Drivers').all().map((i) => i.json);
+// Empty table on the first run: n8n emits one empty item, so keep only real rows.
+const history = $('Load Notification History').all().map((i) => i.json).filter((n) => n.dedup_key);
+const rows = $input.all().map((i) => i.json);
+
+const plans = planNotifications({ rows, drivers, settings, history, runId: $execution.id });
+return plans.map((p) => ({
+  json: {
+    decision: p.decision,
+    full_name: p.full_name,
+    document_type: p.document_type,
+    days_remaining: p.days_remaining,
+    ...(p.notification || { dedup_key: p.dedup_key, driver_id: p.driver_id, reminder_stage: p.reminder_stage }),
+  },
+}));
+`;
+
+const summaryCode = `// Phase 2 run summary: what was due, what was created, what dedup skipped.
+const plans = $input.all().map((i) => i.json);
+const created = plans.filter((p) => p.decision === 'create');
+const skipped = plans.filter((p) => p.decision === 'skip_duplicate');
+const history = $('Load Notification History').all().map((i) => i.json).filter((n) => n.dedup_key);
+const settings = $('Load Settings').first().json;
+
+// Integrity check: after this run, no dedup key may have more than one blocking attempt.
+const blocking = ['previewed', 'sent', 'uncertain'];
+const counts = {};
+for (const n of [...history, ...created]) {
+  if (blocking.includes(n.status)) counts[n.dedup_key] = (counts[n.dedup_key] || 0) + 1;
+}
+const duplicateKeys = Object.keys(counts).filter((k) => counts[k] > 1);
+
+return [{
+  json: {
+    phase: 'Phase 2: safe reminder preview + dedup',
+    run_at: $now.toISO(),
+    preview_only: settings.preview_only,
+    all_previews_delivered_to: settings.test_recipient,
+    reminders_due: plans.length,
+    created: created.length,
+    skipped_duplicates: skipped.length,
+    history_before_run: history.length,
+    duplicate_keys_after_run: duplicateKeys,
+    dedup_integrity: duplicateKeys.length === 0 ? 'OK' : 'DUPLICATES FOUND',
+    created_reminders: created.map((p) => ({ stage: p.reminder_stage, driver: p.full_name, document: p.document_type, intended: p.intended_recipient, subject: p.subject })),
+    skipped_keys: skipped.map((p) => p.dedup_key),
+  },
+}];
+`;
+
+const NOTIFICATION_COLUMNS = [
+  'notification_id', 'driver_id', 'document_id', 'document_version', 'reminder_stage', 'dedup_key',
+  'audience', 'intended_recipient', 'delivered_to', 'delivery_mode', 'subject', 'body', 'from_name',
+  'provider_message_id', 'status', 'attempted_at', 'error_detail',
+];
+const sampleNotification = JSON.stringify({
+  decision: 'create', full_name: 'Jordan Lee', document_type: 'MEDICAL_CERT', days_remaining: 90,
+  ...Object.fromEntries(NOTIFICATION_COLUMNS.map((c) => [c, c === 'document_version' ? 2 : 'sample'])),
+});
+const notificationMapping = NOTIFICATION_COLUMNS.map((c) => `          ${c}: expr('{{ $json.${c} }}'),`).join('\n');
+const notificationSchema = NOTIFICATION_COLUMNS.map((c) =>
+  `          { id: '${c}', displayName: '${c}', required: false, defaultMatch: false, display: true, type: '${c === 'document_version' ? 'number' : 'string'}', canBeUsedToMatch: true },`).join('\n');
+
+const loadNode = (varName, name, table, x, extra = '', y = 300) => `const ${varName} = node({
   type: 'n8n-nodes-base.dataTable',
   version: 1.1,
   config: {
@@ -86,13 +155,13 @@ const loadNode = (varName, name, table, x, extra = '') => `const ${varName} = no
       dataTableId: { __rl: true, mode: 'name', value: '${table}' },
       returnAll: true,
     },
-    position: [${x}, 300],
+    position: [${x}, ${y}],
   },
   output: [{ id: 1 }],
 });
 `;
 
-const sdk = `import { workflow, node, trigger, sticky } from '@n8n/workflow-sdk';
+const sdk = `import { workflow, node, trigger, sticky, expr } from '@n8n/workflow-sdk';
 
 const start = trigger({
   type: 'n8n-nodes-base.manualTrigger',
@@ -105,7 +174,8 @@ ${loadNode('loadSettings', 'Load Settings', 'documinder_settings', 240)}
 ${loadNode('loadDrivers', 'Load Drivers', 'documinder_drivers', 480, 'executeOnce: true,\n    ')}
 ${loadNode('loadRequirements', 'Load Requirements', 'documinder_requirements', 720, 'executeOnce: true,\n    ')}
 ${loadNode('loadDocuments', 'Load Documents', 'documinder_documents', 960, 'executeOnce: true,\n    ')}
-${loadNode('loadExpectations', 'Load Test Expectations', 'documinder_test_expectations', 1200, 'executeOnce: true,\n    ')}
+${loadNode('loadHistory', 'Load Notification History', 'documinder_notifications', 1200, 'executeOnce: true,\n    alwaysOutputData: true,\n    ')}
+${loadNode('loadExpectations', 'Load Test Expectations', 'documinder_test_expectations', 1440, 'executeOnce: true,\n    ')}
 const classify = node({
   type: 'n8n-nodes-base.code',
   version: 2,
@@ -116,7 +186,7 @@ const classify = node({
       language: 'javaScript',
       jsCode: ${JSON.stringify(classifyCode)},
     },
-    position: [1440, 300],
+    position: [1680, 300],
   },
   output: [{ driver_id: 'D002', document_type: 'MEDICAL_CERT', days_remaining: 90, state: 'approaching_expiry', reminder_stage: 'D90', action: 'driver_reminder', dedup_key: 'D002|DOC0008|2|D90' }],
 });
@@ -131,15 +201,95 @@ const report = node({
       language: 'javaScript',
       jsCode: ${JSON.stringify(reportCode)},
     },
-    position: [1680, 300],
+    position: [1920, 300],
   },
   output: [{ exit_check: 'PASS', checked: 84, passed: 84, failed: 0 }],
 });
 
+const plan = node({
+  type: 'n8n-nodes-base.code',
+  version: 2,
+  config: {
+    name: 'Plan Reminders (dedup)',
+    parameters: {
+      mode: 'runOnceForAllItems',
+      language: 'javaScript',
+      jsCode: ${JSON.stringify(planCode)},
+    },
+    position: [1920, 760],
+  },
+  output: [${sampleNotification}],
+});
+
+const isNew = node({
+  type: 'n8n-nodes-base.if',
+  version: 2.3,
+  config: {
+    name: 'New Reminder?',
+    parameters: {
+      conditions: {
+        combinator: 'and',
+        options: { caseSensitive: true, leftValue: '', typeValidation: 'strict', version: 2 },
+        conditions: [{ leftValue: expr('{{ $json.decision }}'), rightValue: 'create', operator: { type: 'string', operation: 'equals' } }],
+      },
+    },
+    position: [2160, 760],
+  },
+  output: [${sampleNotification}],
+});
+
+const record = node({
+  type: 'n8n-nodes-base.dataTable',
+  version: 1.1,
+  config: {
+    name: 'Record Preview Notification',
+    parameters: {
+      resource: 'row',
+      operation: 'insert',
+      dataTableId: { __rl: true, mode: 'name', value: 'documinder_notifications' },
+      columns: {
+        mappingMode: 'defineBelow',
+        value: {
+${notificationMapping}
+        },
+        schema: [
+${notificationSchema}
+        ],
+      },
+    },
+    position: [2400, 700],
+  },
+  output: [{ id: 1 }],
+});
+
+const summary = node({
+  type: 'n8n-nodes-base.code',
+  version: 2,
+  config: {
+    name: 'Phase 2 Run Summary',
+    parameters: {
+      mode: 'runOnceForAllItems',
+      language: 'javaScript',
+      jsCode: ${JSON.stringify(summaryCode)},
+    },
+    position: [2160, 1000],
+  },
+  output: [{ reminders_due: 9, created: 9, skipped_duplicates: 0, dedup_integrity: 'OK' }],
+});
+
+const notePreview = sticky(
+  '## 4 · Reminder preview + dedup (Phase 2)\\n' +
+  'Due stages get a fixed-template reminder (no AI). While **preview_only** is on, every message is addressed to the **test inbox**; the real driver/manager is only recorded as intended_recipient.\\n\\n' +
+  'Dedup key: driver | document | version | stage. A reminder is created only if no attempt with that key is previewed, sent, or uncertain. failed can retry.\\n\\n' +
+  'Source: src/documinder-reminders.js',
+  [],
+  { color: 3, position: [1860, 540], width: 760, height: 640 }
+);
+
 const noteOverview = sticky(
   '## Documinder · Daily Review\\n' +
   'Checks every required credential for every driver, then classifies it with plain date math (no AI).\\n\\n' +
-  '**Phase 1:** classification only. There is no email, no AI node, and no schedule, and the workflow is not published.\\n\\n' +
+  '**Phases 1–2:** classification, then preview reminders with dedup. Nothing is actually sent, and there is no AI node and no schedule. The workflow is not published.\\n\\n' +
   'Fictional data only. Reference date comes from documinder_settings.test_reference_date (2026-10-15, America/Los_Angeles).',
   [],
   { color: 4, position: [-120, -20], width: 300, height: 480 }
@@ -147,10 +297,10 @@ const noteOverview = sticky(
 
 const noteLoad = sticky(
   '## 1 · Load\\n' +
-  'Settings, drivers, role requirements, every document version, and the expected test results come from n8n Data Tables. ' +
+  'Settings, drivers, role requirements, every document version, notification history, and the expected test results come from n8n Data Tables. ' +
   'Each load runs once (executeOnce) so items never multiply.',
   [],
-  { color: 7, position: [200, -20], width: 1140, height: 480 }
+  { color: 7, position: [200, -20], width: 1380, height: 480 }
 );
 
 const noteClassify = sticky(
@@ -160,14 +310,14 @@ const noteClassify = sticky(
   'Also flags: missing · invalid_date · inactive_skipped · not_applicable.\\n\\n' +
   'Source: src/documinder-core.js',
   [],
-  { color: 5, position: [1380, -20], width: 240, height: 480 }
+  { color: 5, position: [1620, -20], width: 240, height: 480 }
 );
 
 const noteReport = sticky(
   '## 3 · Exit check\\n' +
   'Compares every row with documinder_test_expectations (84 rows) and returns **PASS / FAIL** with per-fixture detail.',
   [],
-  { color: 6, position: [1640, -20], width: 240, height: 480 }
+  { color: 6, position: [1880, -20], width: 240, height: 480 }
 );
 
 export default workflow('documinder-daily-review', 'Documinder · A · Daily Review')
@@ -176,9 +326,16 @@ export default workflow('documinder-daily-review', 'Documinder · A · Daily Rev
   .to(loadDrivers)
   .to(loadRequirements)
   .to(loadDocuments)
+  .to(loadHistory)
   .to(loadExpectations)
   .to(classify)
   .to(report)
+  .add(classify)
+  .to(plan)
+  .to(isNew.onTrue(record))
+  .add(plan)
+  .to(summary)
+  .add(notePreview)
   .add(noteOverview)
   .add(noteLoad)
   .add(noteClassify)

@@ -1,0 +1,123 @@
+{
+  "phase": "Phase 2: safe reminder preview + dedup",
+  "exit_check": "PASS",
+  "criteria": "First run records due reminders; second identical run produces zero duplicate reminders.",
+  "runs": [
+    {
+      "execution": "4",
+      "status": "success",
+      "reminders_due": 9,
+      "created": 9,
+      "skipped_duplicates": 0,
+      "history_before_run": 0,
+      "dedup_integrity": "OK"
+    },
+    {
+      "execution": "5",
+      "status": "success",
+      "reminders_due": 9,
+      "created": 0,
+      "skipped_duplicates": 9,
+      "history_before_run": 9,
+      "dedup_integrity": "OK"
+    },
+    {
+      "execution": "6",
+      "status": "success",
+      "reminders_due": 9,
+      "created": 0,
+      "skipped_duplicates": 9,
+      "history_before_run": 9,
+      "dedup_integrity": "OK"
+    }
+  ],
+  "notifications_table_after_run_3": {
+    "rows": 9,
+    "unique_dedup_keys": 9,
+    "all_delivered_to_test_inbox": true
+  },
+  "run_1_created_reminders": [
+    {
+      "stage": "D90",
+      "driver": "Jordan Lee",
+      "document": "MEDICAL_CERT",
+      "intended": "jordan.lee@example.com",
+      "subject": "[PREVIEW for jordan.lee@example.com] Heads-up: your Medical Examiner's Certificate expires in 90 days"
+    },
+    {
+      "stage": "D60",
+      "driver": "Chris Bennett",
+      "document": "TWIC",
+      "intended": "chris.bennett@example.com",
+      "subject": "[PREVIEW for chris.bennett@example.com] Reminder: your TWIC card expires in 60 days"
+    },
+    {
+      "stage": "D30",
+      "driver": "Renee Patel",
+      "document": "HAZMAT_ENDORSEMENT",
+      "intended": "renee.patel@example.com",
+      "subject": "[PREVIEW for renee.patel@example.com] Action needed: your Hazmat endorsement expires in 30 days"
+    },
+    {
+      "stage": "D14",
+      "driver": "Luis Alvarez",
+      "document": "MEDICAL_CERT",
+      "intended": "luis.alvarez@example.com",
+      "subject": "[PREVIEW for luis.alvarez@example.com] Action needed: your Medical Examiner's Certificate expires in 14 days"
+    },
+    {
+      "stage": "D7",
+      "driver": "Taylor Morgan",
+      "document": "TWIC",
+      "intended": "taylor.morgan@example.com",
+      "subject": "[PREVIEW for taylor.morgan@example.com] Final reminder: your TWIC card expires in 7 days"
+    },
+    {
+      "stage": "D0",
+      "driver": "Casey Brooks",
+      "document": "CDL",
+      "intended": "casey.brooks@example.com, ops.manager@example.com",
+      "subject": "[PREVIEW for casey.brooks@example.com, ops.manager@example.com] Expires today: your Commercial Driver's License (CDL)"
+    },
+    {
+      "stage": "D0",
+      "driver": "Casey Brooks",
+      "document": "HAZMAT_ENDORSEMENT",
+      "intended": "casey.brooks@example.com, ops.manager@example.com",
+      "subject": "[PREVIEW for casey.brooks@example.com, ops.manager@example.com] Expires today: your Hazmat endorsement"
+    },
+    {
+      "stage": "D0",
+      "driver": "Casey Brooks",
+      "document": "TANKER_ENDORSEMENT",
+      "intended": "casey.brooks@example.com, ops.manager@example.com",
+      "subject": "[PREVIEW for casey.brooks@example.com, ops.manager@example.com] Expires today: your Tanker endorsement"
+    },
+    {
+      "stage": "OVERDUE",
+      "driver": "Morgan Reed",
+      "document": "MEDICAL_CERT",
+      "intended": "ops.manager@example.com",
+      "subject": "[PREVIEW for ops.manager@example.com] Staff escalation: Morgan Reed's Medical Examiner's Certificate expired 5 days ago"
+    }
+  ],
+  "sample_notification_row": {
+    "notification_id": "NTF-4-001",
+    "driver_id": "D002",
+    "document_id": "DOC0008",
+    "document_version": 2,
+    "reminder_stage": "D90",
+    "dedup_key": "D002|DOC0008|2|D90",
+    "intended_recipient": "jordan.lee@example.com",
+    "provider_message_id": "",
+    "status": "previewed",
+    "attempted_at": "2026-10-09T09:48:02.023Z",
+    "error_detail": "",
+    "audience": "driver",
+    "delivered_to": "documinder.test@example.com",
+    "delivery_mode": "preview",
+    "subject": "[PREVIEW for jordan.lee@example.com] Heads-up: your Medical Examiner's Certificate expires in 90 days",
+    "body": "Hi Jordan,\n\nYour Medical Examiner's Certificate expires in 90 days, on January 13, 2027.\n\nPlease submit your renewed document so the compliance team can verify it.",
+    "from_name": "Documinder Compliance (Test)"
+  }
+}

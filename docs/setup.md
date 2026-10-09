@@ -60,8 +60,8 @@ Then, in n8n, choose **Workflows → Import from file** and pick [`workflows/dai
 [`scripts/build-workflow.mjs`](../scripts/build-workflow.mjs) embeds [`src/documinder-core.js`](../src/documinder-core.js) in the **Classify Credentials** Code node and writes n8n Workflow SDK code to [`workflows/daily-review.sdk.js`](../workflows/daily-review.sdk.js). Claude Code then runs, through the MCP server:
 
 1. `validate_workflow`, to check the SDK code;
-2. `create_workflow_from_code` (first time) or `update_workflow` (after that);
-3. `execute_workflow` and `get_workflow_execution`, to run it and read the test report;
+2. `create_workflow_from_code` (first time). After that, [`scripts/sync-workflow.mjs`](../scripts/sync-workflow.mjs) compiles the code into a temporary draft, diffs it against the live workflow, and applies the difference as one atomic `update_workflow` batch, so the workflow ID and version history are kept;
+3. `execute_workflow` and `get_workflow_execution`, via [`scripts/run-workflow.mjs`](../scripts/run-workflow.mjs), to run it and read the report nodes;
 4. `get_workflow_details`, to export the result to `workflows/daily-review.json`.
 
 [`scripts/n8n-mcp.mjs`](../scripts/n8n-mcp.mjs) is a small dependency-free MCP client that runs the same calls from a terminal.

@@ -30,7 +30,7 @@ const TABLES = {
   documinder_drivers: { rows: fixtures.drivers, columns: { driver_id: S, full_name: S, email: S, role: S, active: B, manager_email: S, created_at: S } },
   documinder_requirements: { rows: fixtures.requirements, columns: { requirement_id: S, document_type: S, applicable_role: S, required: B, reminder_stages: S, escalation_policy: S } },
   documinder_documents: { rows: fixtures.documents, columns: { document_id: S, driver_id: S, document_type: S, version: N, issue_date: S, expiration_date: S, status: S, source_file_url: S, verified_at: S, verified_by: S } },
-  documinder_notifications: { rows: null, columns: { notification_id: S, driver_id: S, document_id: S, document_version: N, reminder_stage: S, dedup_key: S, intended_recipient: S, provider_message_id: S, status: S, attempted_at: S, error_detail: S } },
+  documinder_notifications: { rows: null, columns: { notification_id: S, driver_id: S, document_id: S, document_version: N, reminder_stage: S, dedup_key: S, intended_recipient: S, provider_message_id: S, status: S, attempted_at: S, error_detail: S, audience: S, delivered_to: S, delivery_mode: S, subject: S, body: S, from_name: S } },
   documinder_renewals: { rows: null, columns: { renewal_id: S, driver_id: S, document_type: S, submitted_expiration_date: S, submitted_file_url: S, status: S, submitted_at: S, reviewed_at: S, reviewed_by: S, rejection_reason: S } },
   documinder_testing_events: { rows: fixtures.testing_events, columns: { event_id: S, driver_id: S, test_type: S, event_date: S, outcome: S, recorded_by: S } },
   documinder_test_expectations: { rows: fixtures.expected_phase1, columns: { driver_id: S, document_type: S, expected_state: S, expected_stage: S, primary_fixture: B } },

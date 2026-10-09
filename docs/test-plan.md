@@ -30,10 +30,15 @@ The full expectation set has **84 rows** (12 drivers × 7 credential types) in [
 
 **Result (2026-10-09):** ✅ PASS. n8n executions #1, #2, and #3 each returned `checked: 84, passed: 84, failed: 0`. The output of execution #1 is saved in [`evidence/phase1-test-report.json`](evidence/phase1-test-report.json).
 
-## Phase 2: dedup *(planned)*
+## Phase 2: preview + dedup
 
-1. Clear `documinder_notifications` and run the workflow. Expect one preview notification per due stage (D90, D60, D30, D14, D7, D0, OVERDUE, plus inherited endorsements).
-2. Run it again with no changes. Expect **0** new notifications.
+1. Start with an empty `documinder_notifications` table and run the workflow. Expect **9** previews: D90, D60, D30, D14, D7, three D0 (Casey Brooks's CDL plus two endorsements that inherit its date), and one OVERDUE. All of them go to `delivered_to = test_recipient`.
+2. Run it again with no changes. Expect **0** created and **9** skipped as duplicates.
+3. Unit tests ([`tests/reminders.test.mjs`](../tests/reminders.test.mjs)) also cover: `uncertain` blocks a resend, `failed` allows a retry, a new document version starts a fresh cycle, preview mode refuses to run without a test inbox, and each stage's audience (driver, driver + manager, or staff only).
+
+**Result (2026-10-09):** ✅ PASS. Execution #4 created 9; executions #5 and #6 created 0 and skipped 9. The table ended with 9 rows and 9 unique dedup keys, all addressed to the test inbox. Phase 1 still passed 84/84 in the same runs. See [`evidence/phase2-dedup-report.json`](evidence/phase2-dedup-report.json).
+
+To re-run from scratch, delete the rows in `documinder_notifications` in the n8n UI (Data tables → documinder_notifications).
 
 ## Phase 3: reliability *(planned)*
 

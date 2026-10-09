@@ -12,8 +12,8 @@ Documinder checks the credentials every employee must hold each day. It sends th
 
 | # | Proof case | Phase | Status |
 |---|---|---|---|
-| 1 | Finds a document at the correct reminder stage and produces a safe **test** reminder | 1–2 | 🟡 Classification ✅ (84/84 in n8n). Preview reminder is Phase 2 |
-| 2 | Re-running does **not** duplicate a reminder for the same driver + document version + stage | 2 | ⬜ |
+| 1 | Finds a document at the correct reminder stage and produces a safe **test** reminder | 1–2 | ✅ Classification (84/84) and test-inbox previews in n8n |
+| 2 | Re-running does **not** duplicate a reminder for the same driver + document version + stage | 2 | ✅ Run 1: 9 created · runs 2–3: 0 created, 9 skipped |
 | 3 | An approved renewal creates a new document version and closes reminders for the old one | 4 | ⬜ |
 | 4 | A failed or uncertain email delivery shows up for staff review instead of failing silently | 3 | ⬜ |
 
@@ -24,8 +24,12 @@ Documinder checks the credentials every employee must hold each day. It sends th
 | The n8n workflow (import it into any n8n 2.x) | [`workflows/daily-review.json`](workflows/daily-review.json) |
 | The classification logic in the **Classify Credentials** node | [`src/documinder-core.js`](src/documinder-core.js) |
 | A real n8n run: 84/84 checks passed | [`docs/evidence/phase1-test-report.json`](docs/evidence/phase1-test-report.json) |
+| Dedup proof: 3 runs, 9 previews created once, 0 duplicates | [`docs/evidence/phase2-dedup-report.json`](docs/evidence/phase2-dedup-report.json) |
+| Reminder templates and dedup logic | [`src/documinder-reminders.js`](src/documinder-reminders.js) |
 | Every fixture and its expected result | [`docs/test-plan.md`](docs/test-plan.md) |
 | How Claude Code built and tested the workflow through n8n's MCP server | [`docs/setup.md`](docs/setup.md) · [`scripts/n8n-mcp.mjs`](scripts/n8n-mcp.mjs) |
+
+**Phase 2 result:** on the first run, the 9 due stages (D90, D60, D30, D14, D7, and three D0s, since Casey Brooks's two endorsements share the CDL date, plus one OVERDUE) each produced a preview addressed only to the test inbox. The second and third identical runs produced **0** new reminders and skipped all 9 as duplicates.
 
 **Phase 1 result** (n8n execution, reference date 2026-10-15, America/Los_Angeles):
 
@@ -54,10 +58,15 @@ flowchart LR
   S --> D[Load Drivers]
   D --> R[Load Requirements]
   R --> C[Load Documents]
+  C --> H
   C --> K["Classify credentials<br/>(deterministic Code node)"]
+  H[Load Notification History] --> K
   K --> V[Phase 1 test report<br/>actual vs expected]
-  K -. Phase 2 .-> N[Dedup vs Notifications<br/>→ preview reminder]
-  N -. Phase 3 .-> Q[Staff-review queue<br/>+ run summary]
+  K --> P["Plan reminders<br/>(dedup key check)"]
+  P --> I{New?}
+  I -- yes --> W[Record preview<br/>→ test inbox only]
+  P --> U[Phase 2 run summary]
+  W -. Phase 3 .-> Q[Send via provider<br/>+ staff-review queue]
 ```
 
 **Workflow A (daily review):** load settings → active drivers → role requirements → latest *verified* document version → validate the date → count whole calendar days remaining in the business timezone → classify → work out the due reminder stage → check notification history → send a preview → record the result → route failures → print a run summary.
@@ -114,7 +123,7 @@ To run the n8n side locally and connect Claude Code through n8n's built-in MCP s
 ## Build phases
 
 - [x] **Phase 1, classification engine.** Data tables, fixtures, days-remaining math, and classification. Exit check: every fixture classifies correctly on repeated runs. ✅ Passed in n8n (84/84, 3 runs).
-- [ ] **Phase 2, safe reminder preview.** Notification history and dedup. Exit check: the second identical run creates zero duplicates.
+- [x] **Phase 2, safe reminder preview.** Notification history and dedup. Exit check: the second identical run creates zero duplicates. ✅ Passed in n8n (run 1: 9 created; runs 2–3: 0 created).
 - [ ] **Phase 3, reliability.** Success, failure, and uncertain outcomes, a staff-review queue, and a run summary.
 - [ ] **Phase 4, renewal loop.** Versioning, approve/reject, and closing reminders for superseded versions.
 - [ ] **Phase 5, portfolio evidence.** A 3–5 minute demo and a one-page [case study](docs/case-study.md).
