@@ -28,8 +28,10 @@ test('second identical run creates zero duplicates (Phase 2 exit check, part 2)'
   assert.equal(s.skipped_duplicates, 9);
 });
 
-test('uncertain blocks a resend; failed allows a retry', () => {
+test('pending and uncertain block a resend; failed allows a retry', () => {
   const first = plan([]).map((p) => p.notification);
+  assert.equal(first[0].status, 'pending');
+  assert.equal(rem.summarizePlans(plan(first)).created, 0);
   const uncertain = first.map((n) => ({ ...n, status: 'uncertain' }));
   assert.equal(rem.summarizePlans(plan(uncertain)).created, 0);
   const failed = first.map((n) => ({ ...n, status: 'failed' }));
@@ -67,4 +69,13 @@ test('reminder text is specific and deterministic', () => {
   assert.match(jordan.subject, /Heads-up: your Medical Examiner's Certificate expires in 90 days$/);
   assert.match(jordan.body, /on January 13, 2027/);
   assert.deepEqual(plan([])[0].notification.body, plan([])[0].notification.body);
+});
+
+test('simulations apply only in preview mode', () => {
+  const simulations = [{ driver_id: 'D005', document_type: 'MEDICAL_CERT', outcome: 'failure' }];
+  const preview = rem.planNotifications({ rows, drivers: fixtures.drivers, settings, history: [], simulations, now });
+  assert.equal(preview.find((p) => p.driver_id === 'D005').notification.simulated_outcome, 'failure');
+  assert.equal(preview.find((p) => p.driver_id === 'D002').notification.simulated_outcome, '');
+  const live = rem.planNotifications({ rows, drivers: fixtures.drivers, settings: { ...settings, preview_only: false }, history: [], simulations, now });
+  assert.equal(live.find((p) => p.driver_id === 'D005').notification.simulated_outcome, '');
 });

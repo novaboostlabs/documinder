@@ -15,7 +15,7 @@ Documinder checks the credentials every employee must hold each day. It sends th
 | 1 | Finds a document at the correct reminder stage and produces a safe **test** reminder | 1–2 | ✅ Classification (84/84) and test-inbox previews in n8n |
 | 2 | Re-running does **not** duplicate a reminder for the same driver + document version + stage | 2 | ✅ Run 1: 9 created · runs 2–3: 0 created, 9 skipped |
 | 3 | An approved renewal creates a new document version and closes reminders for the old one | 4 | ⬜ |
-| 4 | A failed or uncertain email delivery shows up for staff review instead of failing silently | 3 | ⬜ |
+| 4 | A failed or uncertain email delivery shows up for staff review instead of failing silently | 3 | ✅ Failure → retried · timeout → held · both queued |
 
 ## See it without installing anything
 
@@ -26,8 +26,19 @@ Documinder checks the credentials every employee must hold each day. It sends th
 | A real n8n run: 84/84 checks passed | [`docs/evidence/phase1-test-report.json`](docs/evidence/phase1-test-report.json) |
 | Dedup proof: 3 runs, 9 previews created once, 0 duplicates | [`docs/evidence/phase2-dedup-report.json`](docs/evidence/phase2-dedup-report.json) |
 | Reminder templates and dedup logic | [`src/documinder-reminders.js`](src/documinder-reminders.js) |
+| Delivery proof: 7 real sends, a simulated failure, and a simulated timeout over 2 runs | [`docs/evidence/phase3-delivery-report.json`](docs/evidence/phase3-delivery-report.json) |
+| Provider-outcome rules and staff-review queue | [`src/documinder-delivery.js`](src/documinder-delivery.js) |
 | Every fixture and its expected result | [`docs/test-plan.md`](docs/test-plan.md) |
 | How Claude Code built and tested the workflow through n8n's MCP server | [`docs/setup.md`](docs/setup.md) · [`scripts/n8n-mcp.mjs`](scripts/n8n-mcp.mjs) |
+
+**Phase 3 result:** reminders are sent for real through Gmail SMTP, always to the test inbox while `preview_only` is on. Two outcomes were simulated to test the edge cases:
+
+| | Run 1 | Run 2 |
+|---|---|---|
+| 7 normal reminders | `sent` (Gmail message IDs recorded) | skipped as duplicates |
+| Luis Alvarez: provider **rejects** (550) | `failed` → staff review (medium) | **retried automatically** |
+| Taylor Morgan: provider **times out** | `uncertain` → staff review (**high**) | **held**: never auto-resent |
+| Missing TWIC, invalid date | queued for staff review | not queued again |
 
 **Phase 2 result:** on the first run, the 9 due stages (D90, D60, D30, D14, D7, and three D0s, since Casey Brooks's two endorsements share the CDL date, plus one OVERDUE) each produced a preview addressed only to the test inbox. The second and third identical runs produced **0** new reminders and skipped all 9 as duplicates.
 
@@ -60,13 +71,16 @@ flowchart LR
   R --> C[Load Documents]
   C --> H
   C --> K["Classify credentials<br/>(deterministic Code node)"]
-  H[Load Notification History] --> K
+  H[Load history, review queue,<br/>simulations] --> K
   K --> V[Phase 1 test report<br/>actual vs expected]
   K --> P["Plan reminders<br/>(dedup key check)"]
   P --> I{New?}
-  I -- yes --> W[Record preview<br/>→ test inbox only]
-  P --> U[Phase 2 run summary]
-  W -. Phase 3 .-> Q[Send via provider<br/>+ staff-review queue]
+  I -- yes --> W[Record as pending]
+  W --> E[Send email<br/>test inbox only]
+  E -- accepted / rejected / timeout --> X[Interpret:<br/>sent · failed · uncertain]
+  X --> Y[Record provider result]
+  K --> Q[Staff-review queue<br/>failures · uncertain · data issues]
+  K --> U[Run summary]
 ```
 
 **Workflow A (daily review):** load settings → active drivers → role requirements → latest *verified* document version → validate the date → count whole calendar days remaining in the business timezone → classify → work out the due reminder stage → check notification history → send a preview → record the result → route failures → print a run summary.
@@ -95,8 +109,9 @@ The workflow also flags `missing`, `invalid_date`, `inactive_skipped`, and `not_
 - **Missed stages aren't replayed.** Only the current stage is sent. A driver found at 45 days gets `D60`, never `D90` and `D60` together.
 - **Endorsements never get invented dates.** An endorsement with no expiration date inherits the CDL date, and the output records that it did (`inherited_from_cdl:DOC…`).
 - **Dedup key:** `driver_id + document_id + document_version + reminder_stage`.
-- **Timeouts and unknown provider responses count as `uncertain`.** They are never retried automatically.
-- **Preview mode** sends every message only to the designated test inbox.
+- **Timeouts and unknown provider responses count as `uncertain`.** They are never retried automatically, and the Send node has n8n's own retry turned off.
+- **Record before sending.** Each reminder is saved as `pending` before the provider is called. If a run dies mid-send, the leftover `pending` row blocks a resend and goes to staff review.
+- **Preview mode** sends every message only to the designated test inbox. The Send node re-checks this itself, so a planner bug still can't reach a real driver.
 - The scheduled workflow stays **unpublished** until every test case passes.
 
 ## Repo layout
@@ -124,13 +139,13 @@ To run the n8n side locally and connect Claude Code through n8n's built-in MCP s
 
 - [x] **Phase 1, classification engine.** Data tables, fixtures, days-remaining math, and classification. Exit check: every fixture classifies correctly on repeated runs. ✅ Passed in n8n (84/84, 3 runs).
 - [x] **Phase 2, safe reminder preview.** Notification history and dedup. Exit check: the second identical run creates zero duplicates. ✅ Passed in n8n (run 1: 9 created; runs 2–3: 0 created).
-- [ ] **Phase 3, reliability.** Success, failure, and uncertain outcomes, a staff-review queue, and a run summary.
+- [x] **Phase 3, reliability.** Success, failure, and uncertain outcomes, a staff-review queue, and a run summary. ✅ Passed in n8n (failure retried, timeout held, both queued).
 - [ ] **Phase 4, renewal loop.** Versioning, approve/reject, and closing reminders for superseded versions.
 - [ ] **Phase 5, portfolio evidence.** A 3–5 minute demo and a one-page [case study](docs/case-study.md).
 
 ## Tools
 
-n8n (self-hosted, Data Tables, Code node) · JavaScript · Node test runner · Claude Code with the n8n MCP server · GitHub
+n8n (self-hosted, Data Tables, Code node, Send Email/SMTP, error branches) · Gmail SMTP · JavaScript · Node test runner · Claude Code with the n8n MCP server · GitHub
 
 ## License
 

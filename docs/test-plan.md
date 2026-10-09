@@ -40,10 +40,29 @@ The full expectation set has **84 rows** (12 drivers × 7 credential types) in [
 
 To re-run from scratch, delete the rows in `documinder_notifications` in the n8n UI (Data tables → documinder_notifications).
 
-## Phase 3: reliability *(planned)*
+## Phase 3: delivery outcomes + staff review
 
-- Simulated provider failure → `status = failed`, appears in the staff-review output, and is eligible for retry.
-- Simulated timeout → `status = uncertain`, appears in the staff-review output, and is **not** retried automatically.
+**Setup:** run *Documinder · Dev · Reset Demo Data*, which only works while `preview_only` is true. Then add two rows to `documinder_provider_simulations`:
+
+| driver_id | document_type | outcome |
+|---|---|---|
+| D005 (Luis Alvarez) | MEDICAL_CERT | failure |
+| D006 (Taylor Morgan) | TWIC | timeout |
+
+| Check | Expected | Run 1 (exec #10) | Run 2 (exec #11) |
+|---|---|---|---|
+| Real sends to the test inbox | 7 `sent` with provider message IDs | ✅ 7 | ✅ 0 new (7 skipped) |
+| Simulated failure | `failed`, staff review, retried next run | ✅ failed · medium | ✅ retried (`retried_after_failure: 1`) |
+| Simulated timeout | `uncertain`, staff review, **not** retried | ✅ uncertain · high | ✅ held (`held_because_uncertain: 1`) |
+| Data issues | missing + invalid queued once | ✅ 2 queued | ✅ 0 re-queued |
+| Stuck `pending` rows | 0 | ✅ 0 | ✅ 0 |
+| Phase 1 still passes | 84/84 | ✅ | ✅ |
+
+Unit tests ([`tests/delivery.test.mjs`](../tests/delivery.test.mjs)) also cover real SMTP error shapes (`EAUTH` → failed, `ECONNRESET` / "connection closed" → uncertain, `ECONNREFUSED` → failed), unknown responses → uncertain, and stuck `pending` rows → staff review.
+
+**Result (2026-10-09):** ✅ PASS. See [`evidence/phase3-delivery-report.json`](evidence/phase3-delivery-report.json).
+
+**Bug found and fixed during testing:** "Interpret Provider Result" gets input from two branches (simulated and real), so n8n runs it once per branch. `$('Interpret Provider Result').all()` returns only the first run, so the summary first reported 0 sent even though Gmail had accepted all 7. That meant a real SMTP failure arriving on the second run could also have skipped the staff-review queue. Both nodes now read every run (`$(node).all(0, runIndex)`).
 
 ## Phase 4: renewal *(planned)*
 

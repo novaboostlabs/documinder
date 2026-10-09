@@ -1,0 +1,453 @@
+{
+  "phase": "Phase 3: delivery outcomes + staff review",
+  "exit_check": "PASS",
+  "criteria": "A simulated provider failure and timeout are both visible and handled differently.",
+  "setup": {
+    "simulations": [
+      {
+        "driver": "Luis Alvarez (D005)",
+        "document": "MEDICAL_CERT",
+        "stage": "D14",
+        "outcome": "failure"
+      },
+      {
+        "driver": "Taylor Morgan (D006)",
+        "document": "TWIC",
+        "stage": "D7",
+        "outcome": "timeout"
+      }
+    ],
+    "provider": "Gmail SMTP (n8n Send Email node, onError=continueErrorOutput, no automatic retries)",
+    "preview_only": true
+  },
+  "run_1": {
+    "execution": "10",
+    "phase1_check": "PASS",
+    "phase": "Phase 3: delivery outcomes + staff review",
+    "preview_only": true,
+    "all_messages_delivered_to": "<test inbox>",
+    "reminders_due": 9,
+    "attempted": 9,
+    "sent": 7,
+    "failed": 1,
+    "uncertain": 1,
+    "skipped_duplicates": 0,
+    "retried_after_failure": 0,
+    "held_because_uncertain": 0,
+    "staff_review_new": 4,
+    "staff_review_open_total": 4,
+    "deliveries": [
+      {
+        "stage": "D90",
+        "driver": "Jordan Lee",
+        "document": "MEDICAL_CERT",
+        "status": "sent",
+        "simulated": "",
+        "provider_message_id": "<eb634558-8c1c-b743-ad00-4bfc24a440b2@gmail.com>",
+        "error_detail": ""
+      },
+      {
+        "stage": "D60",
+        "driver": "Chris Bennett",
+        "document": "TWIC",
+        "status": "sent",
+        "simulated": "",
+        "provider_message_id": "<ce8e8650-59c8-4a8d-1456-5842c0715942@gmail.com>",
+        "error_detail": ""
+      },
+      {
+        "stage": "D30",
+        "driver": "Renee Patel",
+        "document": "HAZMAT_ENDORSEMENT",
+        "status": "sent",
+        "simulated": "",
+        "provider_message_id": "<cf9b095b-fa20-2bbe-1075-4db3c163872f@gmail.com>",
+        "error_detail": ""
+      },
+      {
+        "stage": "D0",
+        "driver": "Casey Brooks",
+        "document": "CDL",
+        "status": "sent",
+        "simulated": "",
+        "provider_message_id": "<49c95c4d-ba0a-b6fe-c3bd-e8f7885cd192@gmail.com>",
+        "error_detail": ""
+      },
+      {
+        "stage": "D0",
+        "driver": "Casey Brooks",
+        "document": "HAZMAT_ENDORSEMENT",
+        "status": "sent",
+        "simulated": "",
+        "provider_message_id": "<4b68cb29-9cf5-4a78-8776-ac9aca7c0183@gmail.com>",
+        "error_detail": ""
+      },
+      {
+        "stage": "D0",
+        "driver": "Casey Brooks",
+        "document": "TANKER_ENDORSEMENT",
+        "status": "sent",
+        "simulated": "",
+        "provider_message_id": "<279154f8-0d8b-c186-4445-7bce1061bc73@gmail.com>",
+        "error_detail": ""
+      },
+      {
+        "stage": "OVERDUE",
+        "driver": "Morgan Reed",
+        "document": "MEDICAL_CERT",
+        "status": "sent",
+        "simulated": "",
+        "provider_message_id": "<8ef99ad7-d231-c20a-9e76-2ab1703ed3f0@gmail.com>",
+        "error_detail": ""
+      },
+      {
+        "stage": "D14",
+        "driver": "Luis Alvarez",
+        "document": "MEDICAL_CERT",
+        "status": "failed",
+        "simulated": "failure",
+        "provider_message_id": "",
+        "error_detail": "failed: EENVELOPE 550 550 5.1.1 Recipient address rejected: mailbox unavailable (simulated)"
+      },
+      {
+        "stage": "D7",
+        "driver": "Taylor Morgan",
+        "document": "TWIC",
+        "status": "uncertain",
+        "simulated": "timeout",
+        "provider_message_id": "",
+        "error_detail": "uncertain: ETIMEDOUT Connection timeout after 30000ms (simulated)"
+      }
+    ],
+    "staff_review_new_items": [
+      {
+        "category": "delivery_failed",
+        "severity": "medium",
+        "driver_id": "D005",
+        "document_type": "MEDICAL_CERT",
+        "detail": "failed: EENVELOPE 550 550 5.1.1 Recipient address rejected: mailbox unavailable (simulated)"
+      },
+      {
+        "category": "delivery_uncertain",
+        "severity": "high",
+        "driver_id": "D006",
+        "document_type": "TWIC",
+        "detail": "uncertain: ETIMEDOUT Connection timeout after 30000ms (simulated)"
+      },
+      {
+        "category": "missing_document",
+        "severity": "medium",
+        "driver_id": "D011",
+        "document_type": "TWIC",
+        "detail": "required document has no verified version on file"
+      },
+      {
+        "category": "invalid_date",
+        "severity": "medium",
+        "driver_id": "D012",
+        "document_type": "MEDICAL_CERT",
+        "detail": "impossible calendar date \"2026-02-30\""
+      }
+    ]
+  },
+  "run_2": {
+    "execution": "11",
+    "phase1_check": "PASS",
+    "phase": "Phase 3: delivery outcomes + staff review",
+    "preview_only": true,
+    "all_messages_delivered_to": "<test inbox>",
+    "reminders_due": 9,
+    "attempted": 1,
+    "sent": 0,
+    "failed": 1,
+    "uncertain": 0,
+    "skipped_duplicates": 8,
+    "retried_after_failure": 1,
+    "held_because_uncertain": 1,
+    "staff_review_new": 1,
+    "staff_review_open_total": 5,
+    "deliveries": [
+      {
+        "stage": "D14",
+        "driver": "Luis Alvarez",
+        "document": "MEDICAL_CERT",
+        "status": "failed",
+        "simulated": "failure",
+        "provider_message_id": "",
+        "error_detail": "failed: EENVELOPE 550 550 5.1.1 Recipient address rejected: mailbox unavailable (simulated)"
+      }
+    ],
+    "staff_review_new_items": [
+      {
+        "category": "delivery_failed",
+        "severity": "medium",
+        "driver_id": "D005",
+        "document_type": "MEDICAL_CERT",
+        "detail": "failed: EENVELOPE 550 550 5.1.1 Recipient address rejected: mailbox unavailable (simulated)"
+      }
+    ]
+  },
+  "how_they_differ": {
+    "failure": "recorded failed, queued for staff review (medium), retried automatically on the next run",
+    "timeout": "recorded uncertain, queued for staff review (high), NOT resent on the next run (held_because_uncertain = 1)"
+  },
+  "notifications_table_after_run_2": [
+    {
+      "notification_id": "NTF-10-001",
+      "driver_id": "D002",
+      "document_id": "DOC0008",
+      "document_version": 2,
+      "reminder_stage": "D90",
+      "dedup_key": "D002|DOC0008|2|D90",
+      "intended_recipient": "jordan.lee@example.com",
+      "provider_message_id": "<eb634558-8c1c-b743-ad00-4bfc24a440b2@gmail.com>",
+      "status": "sent",
+      "attempted_at": "2026-10-09T10:52:57.932Z",
+      "error_detail": "",
+      "audience": "driver",
+      "delivered_to": "<test inbox>",
+      "delivery_mode": "preview",
+      "subject": "[PREVIEW for jordan.lee@example.com] Heads-up: your Medical Examiner's Certificate expires in 90 days",
+      "from_name": "Documinder Compliance (Test)",
+      "simulated_outcome": ""
+    },
+    {
+      "notification_id": "NTF-10-002",
+      "driver_id": "D003",
+      "document_id": "DOC0015",
+      "document_version": 1,
+      "reminder_stage": "D60",
+      "dedup_key": "D003|DOC0015|1|D60",
+      "intended_recipient": "chris.bennett@example.com",
+      "provider_message_id": "<ce8e8650-59c8-4a8d-1456-5842c0715942@gmail.com>",
+      "status": "sent",
+      "attempted_at": "2026-10-09T10:52:57.933Z",
+      "error_detail": "",
+      "audience": "driver",
+      "delivered_to": "<test inbox>",
+      "delivery_mode": "preview",
+      "subject": "[PREVIEW for chris.bennett@example.com] Reminder: your TWIC card expires in 60 days",
+      "from_name": "Documinder Compliance (Test)",
+      "simulated_outcome": ""
+    },
+    {
+      "notification_id": "NTF-10-003",
+      "driver_id": "D004",
+      "document_id": "DOC0021",
+      "document_version": 1,
+      "reminder_stage": "D30",
+      "dedup_key": "D004|DOC0021|1|D30",
+      "intended_recipient": "renee.patel@example.com",
+      "provider_message_id": "<cf9b095b-fa20-2bbe-1075-4db3c163872f@gmail.com>",
+      "status": "sent",
+      "attempted_at": "2026-10-09T10:52:57.933Z",
+      "error_detail": "",
+      "audience": "driver",
+      "delivered_to": "<test inbox>",
+      "delivery_mode": "preview",
+      "subject": "[PREVIEW for renee.patel@example.com] Action needed: your Hazmat endorsement expires in 30 days",
+      "from_name": "Documinder Compliance (Test)",
+      "simulated_outcome": ""
+    },
+    {
+      "notification_id": "NTF-10-004",
+      "driver_id": "D005",
+      "document_id": "DOC0025",
+      "document_version": 1,
+      "reminder_stage": "D14",
+      "dedup_key": "D005|DOC0025|1|D14",
+      "intended_recipient": "luis.alvarez@example.com",
+      "provider_message_id": "",
+      "status": "failed",
+      "attempted_at": "2026-10-09T10:52:58.001Z",
+      "error_detail": "failed: EENVELOPE 550 550 5.1.1 Recipient address rejected: mailbox unavailable (simulated)",
+      "audience": "driver",
+      "delivered_to": "<test inbox>",
+      "delivery_mode": "preview",
+      "subject": "[PREVIEW for luis.alvarez@example.com] Action needed: your Medical Examiner's Certificate expires in 14 days",
+      "from_name": "Documinder Compliance (Test)",
+      "simulated_outcome": "failure"
+    },
+    {
+      "notification_id": "NTF-10-005",
+      "driver_id": "D006",
+      "document_id": "DOC0029",
+      "document_version": 1,
+      "reminder_stage": "D7",
+      "dedup_key": "D006|DOC0029|1|D7",
+      "intended_recipient": "taylor.morgan@example.com",
+      "provider_message_id": "",
+      "status": "uncertain",
+      "attempted_at": "2026-10-09T10:52:58.001Z",
+      "error_detail": "uncertain: ETIMEDOUT Connection timeout after 30000ms (simulated)",
+      "audience": "driver",
+      "delivered_to": "<test inbox>",
+      "delivery_mode": "preview",
+      "subject": "[PREVIEW for taylor.morgan@example.com] Final reminder: your TWIC card expires in 7 days",
+      "from_name": "Documinder Compliance (Test)",
+      "simulated_outcome": "timeout"
+    },
+    {
+      "notification_id": "NTF-10-006",
+      "driver_id": "D007",
+      "document_id": "DOC0033",
+      "document_version": 1,
+      "reminder_stage": "D0",
+      "dedup_key": "D007|DOC0033|1|D0",
+      "intended_recipient": "casey.brooks@example.com, ops.manager@example.com",
+      "provider_message_id": "<49c95c4d-ba0a-b6fe-c3bd-e8f7885cd192@gmail.com>",
+      "status": "sent",
+      "attempted_at": "2026-10-09T10:52:57.934Z",
+      "error_detail": "",
+      "audience": "driver_and_staff",
+      "delivered_to": "<test inbox>",
+      "delivery_mode": "preview",
+      "subject": "[PREVIEW for casey.brooks@example.com, ops.manager@example.com] Expires today: your Commercial Driver's License (CDL)",
+      "from_name": "Documinder Compliance (Test)",
+      "simulated_outcome": ""
+    },
+    {
+      "notification_id": "NTF-10-007",
+      "driver_id": "D007",
+      "document_id": "DOC0036",
+      "document_version": 1,
+      "reminder_stage": "D0",
+      "dedup_key": "D007|DOC0036|1|D0",
+      "intended_recipient": "casey.brooks@example.com, ops.manager@example.com",
+      "provider_message_id": "<4b68cb29-9cf5-4a78-8776-ac9aca7c0183@gmail.com>",
+      "status": "sent",
+      "attempted_at": "2026-10-09T10:52:57.934Z",
+      "error_detail": "",
+      "audience": "driver_and_staff",
+      "delivered_to": "<test inbox>",
+      "delivery_mode": "preview",
+      "subject": "[PREVIEW for casey.brooks@example.com, ops.manager@example.com] Expires today: your Hazmat endorsement",
+      "from_name": "Documinder Compliance (Test)",
+      "simulated_outcome": ""
+    },
+    {
+      "notification_id": "NTF-10-008",
+      "driver_id": "D007",
+      "document_id": "DOC0037",
+      "document_version": 1,
+      "reminder_stage": "D0",
+      "dedup_key": "D007|DOC0037|1|D0",
+      "intended_recipient": "casey.brooks@example.com, ops.manager@example.com",
+      "provider_message_id": "<279154f8-0d8b-c186-4445-7bce1061bc73@gmail.com>",
+      "status": "sent",
+      "attempted_at": "2026-10-09T10:52:57.934Z",
+      "error_detail": "",
+      "audience": "driver_and_staff",
+      "delivered_to": "<test inbox>",
+      "delivery_mode": "preview",
+      "subject": "[PREVIEW for casey.brooks@example.com, ops.manager@example.com] Expires today: your Tanker endorsement",
+      "from_name": "Documinder Compliance (Test)",
+      "simulated_outcome": ""
+    },
+    {
+      "notification_id": "NTF-10-009",
+      "driver_id": "D008",
+      "document_id": "DOC0040",
+      "document_version": 1,
+      "reminder_stage": "OVERDUE",
+      "dedup_key": "D008|DOC0040|1|OVERDUE",
+      "intended_recipient": "ops.manager@example.com",
+      "provider_message_id": "<8ef99ad7-d231-c20a-9e76-2ab1703ed3f0@gmail.com>",
+      "status": "sent",
+      "attempted_at": "2026-10-09T10:52:57.935Z",
+      "error_detail": "",
+      "audience": "staff",
+      "delivered_to": "<test inbox>",
+      "delivery_mode": "preview",
+      "subject": "[PREVIEW for ops.manager@example.com] Staff escalation: Morgan Reed's Medical Examiner's Certificate expired 5 days ago",
+      "from_name": "Documinder Compliance (Test)",
+      "simulated_outcome": ""
+    },
+    {
+      "notification_id": "NTF-11-001",
+      "driver_id": "D005",
+      "document_id": "DOC0025",
+      "document_version": 1,
+      "reminder_stage": "D14",
+      "dedup_key": "D005|DOC0025|1|D14",
+      "intended_recipient": "luis.alvarez@example.com",
+      "provider_message_id": "",
+      "status": "failed",
+      "attempted_at": "2026-10-09T10:53:08.534Z",
+      "error_detail": "failed: EENVELOPE 550 550 5.1.1 Recipient address rejected: mailbox unavailable (simulated)",
+      "audience": "driver",
+      "delivered_to": "<test inbox>",
+      "delivery_mode": "preview",
+      "subject": "[PREVIEW for luis.alvarez@example.com] Action needed: your Medical Examiner's Certificate expires in 14 days",
+      "from_name": "Documinder Compliance (Test)",
+      "simulated_outcome": "failure"
+    }
+  ],
+  "staff_review_table_after_run_2": [
+    {
+      "review_key": "delivery|NTF-10-004",
+      "created_at": "2026-10-09T10:52:58.024Z",
+      "category": "delivery_failed",
+      "severity": "medium",
+      "status": "open",
+      "driver_id": "D005",
+      "document_type": "MEDICAL_CERT",
+      "notification_id": "NTF-10-004",
+      "dedup_key": "D005|DOC0025|1|D14",
+      "detail": "failed: EENVELOPE 550 550 5.1.1 Recipient address rejected: mailbox unavailable (simulated)",
+      "recommended_action": "Provider rejected the message. Check the address or provider error; the next run retries automatically."
+    },
+    {
+      "review_key": "delivery|NTF-10-005",
+      "created_at": "2026-10-09T10:52:58.024Z",
+      "category": "delivery_uncertain",
+      "severity": "high",
+      "status": "open",
+      "driver_id": "D006",
+      "document_type": "TWIC",
+      "notification_id": "NTF-10-005",
+      "dedup_key": "D006|DOC0029|1|D7",
+      "detail": "uncertain: ETIMEDOUT Connection timeout after 30000ms (simulated)",
+      "recommended_action": "Delivery unknown. Check the inbox or provider logs before doing anything; Documinder will NOT resend. Then mark the notification sent or failed."
+    },
+    {
+      "review_key": "data|missing|D011|TWIC||",
+      "created_at": "2026-10-09T10:52:58.024Z",
+      "category": "missing_document",
+      "severity": "medium",
+      "status": "open",
+      "driver_id": "D011",
+      "document_type": "TWIC",
+      "notification_id": "",
+      "dedup_key": "",
+      "detail": "required document has no verified version on file",
+      "recommended_action": "Collect and verify the required document."
+    },
+    {
+      "review_key": "data|invalid_date|D012|MEDICAL_CERT|DOC0059|2026-02-30",
+      "created_at": "2026-10-09T10:52:58.024Z",
+      "category": "invalid_date",
+      "severity": "medium",
+      "status": "open",
+      "driver_id": "D012",
+      "document_type": "MEDICAL_CERT",
+      "notification_id": "",
+      "dedup_key": "",
+      "detail": "impossible calendar date \"2026-02-30\"",
+      "recommended_action": "Correct the expiration date in the source record."
+    },
+    {
+      "review_key": "delivery|NTF-11-001",
+      "created_at": "2026-10-09T10:53:08.551Z",
+      "category": "delivery_failed",
+      "severity": "medium",
+      "status": "open",
+      "driver_id": "D005",
+      "document_type": "MEDICAL_CERT",
+      "notification_id": "NTF-11-001",
+      "dedup_key": "D005|DOC0025|1|D14",
+      "detail": "failed: EENVELOPE 550 550 5.1.1 Recipient address rejected: mailbox unavailable (simulated)",
+      "recommended_action": "Provider rejected the message. Check the address or provider error; the next run retries automatically."
+    }
+  ]
+}

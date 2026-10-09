@@ -1,7 +1,8 @@
 // Applies workflows/daily-review.sdk.js to the live n8n workflow without changing its ID
 // or losing its version history.
 //
-//   node scripts/sync-workflow.mjs <liveWorkflowId> "<version name>"
+//   node scripts/sync-workflow.mjs <liveWorkflowId> "<version name>" [workflow-base-name]
+//   (workflow-base-name defaults to daily-review -> workflows/daily-review.sdk.js / .json)
 //
 // n8n's MCP update_workflow takes edit operations, not SDK code. So this script:
 //   1. validates the SDK code (validate_workflow)
@@ -9,16 +10,16 @@
 //   3. diffs the draft against the live workflow and applies the difference as one
 //      atomic update_workflow batch (add/update/remove nodes, settings, connections)
 //   4. archives the temporary draft
-//   5. exports the live workflow to workflows/daily-review.json
+//   5. exports the live workflow to workflows/<base-name>.json
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { connect } from './n8n-mcp.mjs';
 
-const [liveId, versionName = 'Sync from workflows/daily-review.sdk.js'] = process.argv.slice(2);
+const [liveId, versionName = 'Sync from SDK code', base = 'daily-review'] = process.argv.slice(2);
 if (!liveId) throw new Error('usage: node scripts/sync-workflow.mjs <liveWorkflowId> "<version name>"');
 
 const root = new URL('..', import.meta.url);
-const code = readFileSync(new URL('workflows/daily-review.sdk.js', root), 'utf8');
+const code = readFileSync(new URL(`workflows/${base}.sdk.js`, root), 'utf8');
 const mcp = await connect();
 
 const validation = await mcp.call('validate_workflow', { code });
@@ -27,13 +28,24 @@ if (!validation.valid || (validation.warnings || []).length) {
   if (!validation.valid) process.exit(1);
 }
 
+// First time: no live workflow yet, so create it directly and just export it.
+let targetId = liveId;
+if (liveId === 'new') {
+  const created = await mcp.call('create_workflow_from_code', { code, versionName });
+  targetId = created.workflowId;
+  console.log(`created ${created.name}: ${created.workflowId} (${created.url})`);
+} else {
+  await applyDiff();
+}
+
+async function applyDiff() {
 const temp = await mcp.call('create_workflow_from_code', { code, name: `TEMP sync ${Date.now()}`, versionName: 'temporary compile for sync' });
 try {
   const want = (await mcp.call('get_workflow_details', { workflowId: temp.workflowId })).workflow;
   const have = (await mcp.call('get_workflow_details', { workflowId: liveId })).workflow;
   const ops = [];
   const isSticky = (n) => n.type === 'n8n-nodes-base.stickyNote';
-  const nodeSettings = (n) => ({ executeOnce: Boolean(n.executeOnce), alwaysOutputData: Boolean(n.alwaysOutputData) });
+  const nodeSettings = (n) => ({ executeOnce: Boolean(n.executeOnce), alwaysOutputData: Boolean(n.alwaysOutputData), onError: n.onError || 'stopWorkflow' });
 
   // Sticky notes get generated names, so replace them wholesale (they have no connections).
   for (const n of have.nodes.filter(isSticky)) ops.push({ type: 'removeNode', nodeName: n.name });
@@ -46,7 +58,7 @@ try {
   for (const [name, n] of wantByName) {
     const h = haveByName.get(name);
     if (!h) {
-      ops.push({ type: 'addNode', node: { name, type: n.type, typeVersion: n.typeVersion, parameters: n.parameters, position: n.position } });
+      ops.push({ type: 'addNode', node: { name, type: n.type, typeVersion: n.typeVersion, parameters: n.parameters, position: n.position, ...(n.credentials ? { credentials: n.credentials } : {}) } });
     } else {
       if (JSON.stringify(h.parameters) !== JSON.stringify(n.parameters)) {
         ops.push({ type: 'updateNodeParameters', nodeName: name, parameters: n.parameters, replace: true });
@@ -83,9 +95,10 @@ try {
 } finally {
   await mcp.call('archive_workflow', { workflowId: temp.workflowId });
 }
+}
 
 // Export the live workflow as importable JSON (no credentials, unpublished).
-const live = (await mcp.call('get_workflow_details', { workflowId: liveId })).workflow;
+const live = (await mcp.call('get_workflow_details', { workflowId: targetId })).workflow;
 const exported = {
   name: live.name,
   nodes: live.nodes.map(({ credentials, ...n }) => n),
@@ -94,5 +107,5 @@ const exported = {
   pinData: {},
   meta: { templateCredsSetupCompleted: true },
 };
-writeFileSync(new URL('workflows/daily-review.json', root), JSON.stringify(exported, null, 2) + '\n');
-console.log(`synced ${live.name} (${live.nodes.length} nodes, active=${live.active}); exported workflows/daily-review.json`);
+writeFileSync(new URL(`workflows/${base}.json`, root), JSON.stringify(exported, null, 2) + '\n');
+console.log(`synced ${live.name} (${live.nodes.length} nodes, active=${live.active}); exported workflows/${base}.json`);

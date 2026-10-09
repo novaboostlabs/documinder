@@ -5,8 +5,10 @@
 // "Plan Reminders (dedup)" Code node (embedded by scripts/build-workflow.mjs).
 
 // Statuses that mean "this reminder already went out, or may have": never create another.
+//   pending   = recorded before the send; if a run dies mid-send it stays pending (treated as uncertain)
+//   previewed = composed without a provider (Phase 2 dry runs)
 // A 'failed' attempt does not block, so it can be retried. 'closed' belongs to a superseded version.
-const BLOCKING_STATUSES = ['previewed', 'sent', 'uncertain'];
+const BLOCKING_STATUSES = ['pending', 'previewed', 'sent', 'uncertain'];
 
 const DOCUMENT_LABELS = {
   CDL: 'Commercial Driver\'s License (CDL)',
@@ -79,7 +81,9 @@ function composeReminder(row, driver, settings) {
 
 // Decides, for every row with a due reminder stage, whether to create a new preview
 // notification or skip it because a blocking attempt already exists.
-function planNotifications({ rows, drivers, settings, history, now = new Date(), runId = 'local' }) {
+// simulations: optional [{ driver_id, document_type, outcome: 'failure' | 'timeout' }] used to force a
+// provider outcome in tests. Ignored unless preview_only is on, so it can never affect live sends.
+function planNotifications({ rows, drivers, settings, history, simulations = [], now = new Date(), runId = 'local' }) {
   const previewOnly = settings.preview_only === true || settings.preview_only === 'true';
   if (previewOnly && !String(settings.test_recipient || '').trim()) {
     throw new Error('preview_only is on but Settings.test_recipient is empty; refusing to address any reminder.');
@@ -91,6 +95,11 @@ function planNotifications({ rows, drivers, settings, history, now = new Date(),
       .map((n) => n.dedup_key),
   );
   const driversById = new Map(drivers.map((d) => [d.driver_id, d]));
+  const simulationFor = (row) => {
+    if (!previewOnly) return '';
+    const sim = simulations.find((x) => x && x.driver_id === row.driver_id && x.document_type === row.document_type);
+    return sim ? sim.outcome : '';
+  };
   const attemptedAt = now.toISOString();
   const plans = [];
   let seq = 0;
@@ -135,8 +144,9 @@ function planNotifications({ rows, drivers, settings, history, now = new Date(),
         subject: (previewOnly ? `[PREVIEW for ${intended}] ` : '') + msg.subject,
         body: msg.body,
         from_name: settings.reminder_from_name || 'Documinder',
+        simulated_outcome: simulationFor(row),
         provider_message_id: '',
-        status: 'previewed',
+        status: 'pending',
         attempted_at: attemptedAt,
         error_detail: '',
       },
