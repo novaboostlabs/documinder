@@ -1,0 +1,13 @@
+driver_id,full_name,email,role,active,manager_email,created_at
+D001,Maya Torres,maya.torres@example.com,fuel_tanker_driver,true,ops.manager@example.com,2026-09-01T08:00:00-07:00
+D002,Jordan Lee,jordan.lee@example.com,fuel_tanker_driver,true,ops.manager@example.com,2026-09-01T08:00:00-07:00
+D003,Chris Bennett,chris.bennett@example.com,linehaul_driver,true,ops.manager@example.com,2026-09-01T08:00:00-07:00
+D004,Renee Patel,renee.patel@example.com,fuel_tanker_driver,true,ops.manager@example.com,2026-09-01T08:00:00-07:00
+D005,Luis Alvarez,luis.alvarez@example.com,local_driver,true,ops.manager@example.com,2026-09-01T08:00:00-07:00
+D006,Taylor Morgan,taylor.morgan@example.com,fuel_tanker_driver,true,ops.manager@example.com,2026-09-01T08:00:00-07:00
+D007,Casey Brooks,casey.brooks@example.com,fuel_tanker_driver,true,ops.manager@example.com,2026-09-01T08:00:00-07:00
+D008,Morgan Reed,morgan.reed@example.com,fuel_tanker_driver,true,ops.manager@example.com,2026-09-01T08:00:00-07:00
+D009,Jamie Kim,jamie.kim@example.com,fuel_tanker_driver,false,ops.manager@example.com,2026-09-01T08:00:00-07:00
+D010,Avery Johnson,avery.johnson@example.com,local_driver,true,ops.manager@example.com,2026-09-01T08:00:00-07:00
+D011,Sam Rivera,sam.rivera@example.com,linehaul_driver,true,ops.manager@example.com,2026-09-01T08:00:00-07:00
+D012,Drew Collins,drew.collins@example.com,local_driver,true,ops.manager@example.com,2026-09-01T08:00:00-07:00

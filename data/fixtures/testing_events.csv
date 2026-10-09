@@ -1,0 +1,4 @@
+event_id,driver_id,test_type,event_date,outcome,recorded_by
+T001,D001,pre_employment,2024-09-20,completed,compliance.reviewer@example.com
+T002,D003,random,2026-03-11,completed,compliance.reviewer@example.com
+T003,D007,random,2026-06-02,completed,compliance.reviewer@example.com

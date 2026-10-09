@@ -1,0 +1,15 @@
+{
+  "name": "documinder",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Document-expiration monitoring and renewal workflow built in n8n (portfolio project, fictional data only).",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "fixtures": "node scripts/generate-fixtures.mjs",
+    "load:fixtures": "node scripts/load-fixtures.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

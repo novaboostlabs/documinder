@@ -1,0 +1,1641 @@
+{
+  "drivers": [
+    {
+      "driver_id": "D001",
+      "full_name": "Maya Torres",
+      "email": "maya.torres@example.com",
+      "role": "fuel_tanker_driver",
+      "active": true,
+      "manager_email": "ops.manager@example.com",
+      "created_at": "2026-09-01T08:00:00-07:00"
+    },
+    {
+      "driver_id": "D002",
+      "full_name": "Jordan Lee",
+      "email": "jordan.lee@example.com",
+      "role": "fuel_tanker_driver",
+      "active": true,
+      "manager_email": "ops.manager@example.com",
+      "created_at": "2026-09-01T08:00:00-07:00"
+    },
+    {
+      "driver_id": "D003",
+      "full_name": "Chris Bennett",
+      "email": "chris.bennett@example.com",
+      "role": "linehaul_driver",
+      "active": true,
+      "manager_email": "ops.manager@example.com",
+      "created_at": "2026-09-01T08:00:00-07:00"
+    },
+    {
+      "driver_id": "D004",
+      "full_name": "Renee Patel",
+      "email": "renee.patel@example.com",
+      "role": "fuel_tanker_driver",
+      "active": true,
+      "manager_email": "ops.manager@example.com",
+      "created_at": "2026-09-01T08:00:00-07:00"
+    },
+    {
+      "driver_id": "D005",
+      "full_name": "Luis Alvarez",
+      "email": "luis.alvarez@example.com",
+      "role": "local_driver",
+      "active": true,
+      "manager_email": "ops.manager@example.com",
+      "created_at": "2026-09-01T08:00:00-07:00"
+    },
+    {
+      "driver_id": "D006",
+      "full_name": "Taylor Morgan",
+      "email": "taylor.morgan@example.com",
+      "role": "fuel_tanker_driver",
+      "active": true,
+      "manager_email": "ops.manager@example.com",
+      "created_at": "2026-09-01T08:00:00-07:00"
+    },
+    {
+      "driver_id": "D007",
+      "full_name": "Casey Brooks",
+      "email": "casey.brooks@example.com",
+      "role": "fuel_tanker_driver",
+      "active": true,
+      "manager_email": "ops.manager@example.com",
+      "created_at": "2026-09-01T08:00:00-07:00"
+    },
+    {
+      "driver_id": "D008",
+      "full_name": "Morgan Reed",
+      "email": "morgan.reed@example.com",
+      "role": "fuel_tanker_driver",
+      "active": true,
+      "manager_email": "ops.manager@example.com",
+      "created_at": "2026-09-01T08:00:00-07:00"
+    },
+    {
+      "driver_id": "D009",
+      "full_name": "Jamie Kim",
+      "email": "jamie.kim@example.com",
+      "role": "fuel_tanker_driver",
+      "active": false,
+      "manager_email": "ops.manager@example.com",
+      "created_at": "2026-09-01T08:00:00-07:00"
+    },
+    {
+      "driver_id": "D010",
+      "full_name": "Avery Johnson",
+      "email": "avery.johnson@example.com",
+      "role": "local_driver",
+      "active": true,
+      "manager_email": "ops.manager@example.com",
+      "created_at": "2026-09-01T08:00:00-07:00"
+    },
+    {
+      "driver_id": "D011",
+      "full_name": "Sam Rivera",
+      "email": "sam.rivera@example.com",
+      "role": "linehaul_driver",
+      "active": true,
+      "manager_email": "ops.manager@example.com",
+      "created_at": "2026-09-01T08:00:00-07:00"
+    },
+    {
+      "driver_id": "D012",
+      "full_name": "Drew Collins",
+      "email": "drew.collins@example.com",
+      "role": "local_driver",
+      "active": true,
+      "manager_email": "ops.manager@example.com",
+      "created_at": "2026-09-01T08:00:00-07:00"
+    }
+  ],
+  "requirements": [
+    {
+      "requirement_id": "R001",
+      "document_type": "CDL",
+      "applicable_role": "fuel_tanker_driver",
+      "required": true,
+      "reminder_stages": "90,60,30,14,7,0",
+      "escalation_policy": "escalate_on_expiry_and_overdue"
+    },
+    {
+      "requirement_id": "R002",
+      "document_type": "MEDICAL_CERT",
+      "applicable_role": "fuel_tanker_driver",
+      "required": true,
+      "reminder_stages": "90,60,30,14,7,0",
+      "escalation_policy": "escalate_on_expiry_and_overdue"
+    },
+    {
+      "requirement_id": "R003",
+      "document_type": "TWIC",
+      "applicable_role": "fuel_tanker_driver",
+      "required": true,
+      "reminder_stages": "90,60,30,14,7,0",
+      "escalation_policy": "escalate_on_expiry_and_overdue"
+    },
+    {
+      "requirement_id": "R004",
+      "document_type": "HAZMAT_ENDORSEMENT",
+      "applicable_role": "fuel_tanker_driver",
+      "required": true,
+      "reminder_stages": "90,60,30,14,7,0",
+      "escalation_policy": "escalate_on_expiry_and_overdue"
+    },
+    {
+      "requirement_id": "R005",
+      "document_type": "TANKER_ENDORSEMENT",
+      "applicable_role": "fuel_tanker_driver",
+      "required": true,
+      "reminder_stages": "90,60,30,14,7,0",
+      "escalation_policy": "escalate_on_expiry_and_overdue"
+    },
+    {
+      "requirement_id": "R006",
+      "document_type": "DOUBLES_TRIPLES_ENDORSEMENT",
+      "applicable_role": "fuel_tanker_driver",
+      "required": false,
+      "reminder_stages": "90,60,30,14,7,0",
+      "escalation_policy": "escalate_on_expiry_and_overdue"
+    },
+    {
+      "requirement_id": "R007",
+      "document_type": "SAFETY_TRAINING",
+      "applicable_role": "fuel_tanker_driver",
+      "required": true,
+      "reminder_stages": "90,60,30,14,7,0",
+      "escalation_policy": "escalate_on_expiry_and_overdue"
+    },
+    {
+      "requirement_id": "R008",
+      "document_type": "CDL",
+      "applicable_role": "linehaul_driver",
+      "required": true,
+      "reminder_stages": "90,60,30,14,7,0",
+      "escalation_policy": "escalate_on_expiry_and_overdue"
+    },
+    {
+      "requirement_id": "R009",
+      "document_type": "MEDICAL_CERT",
+      "applicable_role": "linehaul_driver",
+      "required": true,
+      "reminder_stages": "90,60,30,14,7,0",
+      "escalation_policy": "escalate_on_expiry_and_overdue"
+    },
+    {
+      "requirement_id": "R010",
+      "document_type": "TWIC",
+      "applicable_role": "linehaul_driver",
+      "required": true,
+      "reminder_stages": "90,60,30,14,7,0",
+      "escalation_policy": "escalate_on_expiry_and_overdue"
+    },
+    {
+      "requirement_id": "R011",
+      "document_type": "HAZMAT_ENDORSEMENT",
+      "applicable_role": "linehaul_driver",
+      "required": false,
+      "reminder_stages": "90,60,30,14,7,0",
+      "escalation_policy": "escalate_on_expiry_and_overdue"
+    },
+    {
+      "requirement_id": "R012",
+      "document_type": "TANKER_ENDORSEMENT",
+      "applicable_role": "linehaul_driver",
+      "required": false,
+      "reminder_stages": "90,60,30,14,7,0",
+      "escalation_policy": "escalate_on_expiry_and_overdue"
+    },
+    {
+      "requirement_id": "R013",
+      "document_type": "DOUBLES_TRIPLES_ENDORSEMENT",
+      "applicable_role": "linehaul_driver",
+      "required": true,
+      "reminder_stages": "90,60,30,14,7,0",
+      "escalation_policy": "escalate_on_expiry_and_overdue"
+    },
+    {
+      "requirement_id": "R014",
+      "document_type": "SAFETY_TRAINING",
+      "applicable_role": "linehaul_driver",
+      "required": true,
+      "reminder_stages": "90,60,30,14,7,0",
+      "escalation_policy": "escalate_on_expiry_and_overdue"
+    },
+    {
+      "requirement_id": "R015",
+      "document_type": "CDL",
+      "applicable_role": "local_driver",
+      "required": true,
+      "reminder_stages": "90,60,30,14,7,0",
+      "escalation_policy": "escalate_on_expiry_and_overdue"
+    },
+    {
+      "requirement_id": "R016",
+      "document_type": "MEDICAL_CERT",
+      "applicable_role": "local_driver",
+      "required": true,
+      "reminder_stages": "90,60,30,14,7,0",
+      "escalation_policy": "escalate_on_expiry_and_overdue"
+    },
+    {
+      "requirement_id": "R017",
+      "document_type": "TWIC",
+      "applicable_role": "local_driver",
+      "required": false,
+      "reminder_stages": "90,60,30,14,7,0",
+      "escalation_policy": "escalate_on_expiry_and_overdue"
+    },
+    {
+      "requirement_id": "R018",
+      "document_type": "HAZMAT_ENDORSEMENT",
+      "applicable_role": "local_driver",
+      "required": false,
+      "reminder_stages": "90,60,30,14,7,0",
+      "escalation_policy": "escalate_on_expiry_and_overdue"
+    },
+    {
+      "requirement_id": "R019",
+      "document_type": "TANKER_ENDORSEMENT",
+      "applicable_role": "local_driver",
+      "required": false,
+      "reminder_stages": "90,60,30,14,7,0",
+      "escalation_policy": "escalate_on_expiry_and_overdue"
+    },
+    {
+      "requirement_id": "R020",
+      "document_type": "DOUBLES_TRIPLES_ENDORSEMENT",
+      "applicable_role": "local_driver",
+      "required": false,
+      "reminder_stages": "90,60,30,14,7,0",
+      "escalation_policy": "escalate_on_expiry_and_overdue"
+    },
+    {
+      "requirement_id": "R021",
+      "document_type": "SAFETY_TRAINING",
+      "applicable_role": "local_driver",
+      "required": true,
+      "reminder_stages": "90,60,30,14,7,0",
+      "escalation_policy": "escalate_on_expiry_and_overdue"
+    }
+  ],
+  "documents": [
+    {
+      "document_id": "DOC0001",
+      "driver_id": "D001",
+      "document_type": "CDL",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2027-03-20",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D001/cdl-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0002",
+      "driver_id": "D001",
+      "document_type": "MEDICAL_CERT",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2028-04-30",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D001/medical_cert-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0003",
+      "driver_id": "D001",
+      "document_type": "TWIC",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2030-01-31",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D001/twic-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0004",
+      "driver_id": "D001",
+      "document_type": "HAZMAT_ENDORSEMENT",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D001/hazmat_endorsement-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0005",
+      "driver_id": "D001",
+      "document_type": "TANKER_ENDORSEMENT",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D001/tanker_endorsement-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0006",
+      "driver_id": "D001",
+      "document_type": "SAFETY_TRAINING",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2027-08-31",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D001/safety_training-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0007",
+      "driver_id": "D002",
+      "document_type": "CDL",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2029-06-30",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D002/cdl-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0008",
+      "driver_id": "D002",
+      "document_type": "MEDICAL_CERT",
+      "version": 2,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2027-01-13",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D002/medical_cert-v2.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0009",
+      "driver_id": "D002",
+      "document_type": "TWIC",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2030-01-31",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D002/twic-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0010",
+      "driver_id": "D002",
+      "document_type": "HAZMAT_ENDORSEMENT",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D002/hazmat_endorsement-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0011",
+      "driver_id": "D002",
+      "document_type": "TANKER_ENDORSEMENT",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D002/tanker_endorsement-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0012",
+      "driver_id": "D002",
+      "document_type": "SAFETY_TRAINING",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2027-08-31",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D002/safety_training-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0013",
+      "driver_id": "D003",
+      "document_type": "CDL",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2029-06-30",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D003/cdl-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0014",
+      "driver_id": "D003",
+      "document_type": "MEDICAL_CERT",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2028-04-30",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D003/medical_cert-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0015",
+      "driver_id": "D003",
+      "document_type": "TWIC",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2026-12-14",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D003/twic-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0016",
+      "driver_id": "D003",
+      "document_type": "DOUBLES_TRIPLES_ENDORSEMENT",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D003/doubles_triples_endorsement-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0017",
+      "driver_id": "D003",
+      "document_type": "SAFETY_TRAINING",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2027-08-31",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D003/safety_training-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0018",
+      "driver_id": "D004",
+      "document_type": "CDL",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2029-06-30",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D004/cdl-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0019",
+      "driver_id": "D004",
+      "document_type": "MEDICAL_CERT",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2028-04-30",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D004/medical_cert-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0020",
+      "driver_id": "D004",
+      "document_type": "TWIC",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2030-01-31",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D004/twic-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0021",
+      "driver_id": "D004",
+      "document_type": "HAZMAT_ENDORSEMENT",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2026-11-14",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D004/hazmat_endorsement-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0022",
+      "driver_id": "D004",
+      "document_type": "TANKER_ENDORSEMENT",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D004/tanker_endorsement-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0023",
+      "driver_id": "D004",
+      "document_type": "SAFETY_TRAINING",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2027-08-31",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D004/safety_training-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0024",
+      "driver_id": "D005",
+      "document_type": "CDL",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2029-06-30",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D005/cdl-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0025",
+      "driver_id": "D005",
+      "document_type": "MEDICAL_CERT",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2026-10-29",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D005/medical_cert-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0026",
+      "driver_id": "D005",
+      "document_type": "SAFETY_TRAINING",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2027-08-31",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D005/safety_training-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0027",
+      "driver_id": "D006",
+      "document_type": "CDL",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2029-06-30",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D006/cdl-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0028",
+      "driver_id": "D006",
+      "document_type": "MEDICAL_CERT",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2028-04-30",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D006/medical_cert-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0029",
+      "driver_id": "D006",
+      "document_type": "TWIC",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2026-10-22",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D006/twic-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0030",
+      "driver_id": "D006",
+      "document_type": "HAZMAT_ENDORSEMENT",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D006/hazmat_endorsement-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0031",
+      "driver_id": "D006",
+      "document_type": "TANKER_ENDORSEMENT",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D006/tanker_endorsement-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0032",
+      "driver_id": "D006",
+      "document_type": "SAFETY_TRAINING",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2027-08-31",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D006/safety_training-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0033",
+      "driver_id": "D007",
+      "document_type": "CDL",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2026-10-15",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D007/cdl-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0034",
+      "driver_id": "D007",
+      "document_type": "MEDICAL_CERT",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2028-04-30",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D007/medical_cert-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0035",
+      "driver_id": "D007",
+      "document_type": "TWIC",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2030-01-31",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D007/twic-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0036",
+      "driver_id": "D007",
+      "document_type": "HAZMAT_ENDORSEMENT",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D007/hazmat_endorsement-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0037",
+      "driver_id": "D007",
+      "document_type": "TANKER_ENDORSEMENT",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D007/tanker_endorsement-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0038",
+      "driver_id": "D007",
+      "document_type": "SAFETY_TRAINING",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2027-08-31",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D007/safety_training-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0039",
+      "driver_id": "D008",
+      "document_type": "CDL",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2029-06-30",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D008/cdl-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0040",
+      "driver_id": "D008",
+      "document_type": "MEDICAL_CERT",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2026-10-10",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D008/medical_cert-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0041",
+      "driver_id": "D008",
+      "document_type": "TWIC",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2030-01-31",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D008/twic-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0042",
+      "driver_id": "D008",
+      "document_type": "HAZMAT_ENDORSEMENT",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D008/hazmat_endorsement-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0043",
+      "driver_id": "D008",
+      "document_type": "TANKER_ENDORSEMENT",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D008/tanker_endorsement-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0044",
+      "driver_id": "D008",
+      "document_type": "SAFETY_TRAINING",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2027-08-31",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D008/safety_training-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0045",
+      "driver_id": "D009",
+      "document_type": "CDL",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2026-10-15",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D009/cdl-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0046",
+      "driver_id": "D009",
+      "document_type": "MEDICAL_CERT",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2028-04-30",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D009/medical_cert-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0047",
+      "driver_id": "D009",
+      "document_type": "TWIC",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2030-01-31",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D009/twic-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0048",
+      "driver_id": "D009",
+      "document_type": "HAZMAT_ENDORSEMENT",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D009/hazmat_endorsement-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0049",
+      "driver_id": "D009",
+      "document_type": "TANKER_ENDORSEMENT",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D009/tanker_endorsement-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0050",
+      "driver_id": "D009",
+      "document_type": "SAFETY_TRAINING",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2027-08-31",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D009/safety_training-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0051",
+      "driver_id": "D010",
+      "document_type": "CDL",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2029-06-30",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D010/cdl-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0052",
+      "driver_id": "D010",
+      "document_type": "MEDICAL_CERT",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2028-04-30",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D010/medical_cert-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0053",
+      "driver_id": "D010",
+      "document_type": "SAFETY_TRAINING",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2027-08-31",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D010/safety_training-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0054",
+      "driver_id": "D011",
+      "document_type": "CDL",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2029-06-30",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D011/cdl-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0055",
+      "driver_id": "D011",
+      "document_type": "MEDICAL_CERT",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2028-04-30",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D011/medical_cert-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0056",
+      "driver_id": "D011",
+      "document_type": "DOUBLES_TRIPLES_ENDORSEMENT",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D011/doubles_triples_endorsement-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0057",
+      "driver_id": "D011",
+      "document_type": "SAFETY_TRAINING",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2027-08-31",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D011/safety_training-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0058",
+      "driver_id": "D012",
+      "document_type": "CDL",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2029-06-30",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D012/cdl-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0059",
+      "driver_id": "D012",
+      "document_type": "MEDICAL_CERT",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2026-02-30",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D012/medical_cert-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0060",
+      "driver_id": "D012",
+      "document_type": "SAFETY_TRAINING",
+      "version": 1,
+      "issue_date": "2024-10-01",
+      "expiration_date": "2027-08-31",
+      "status": "verified",
+      "source_file_url": "https://files.example.com/documinder/D012/safety_training-v1.pdf",
+      "verified_at": "2026-09-02T09:30:00-07:00",
+      "verified_by": "compliance.reviewer@example.com"
+    },
+    {
+      "document_id": "DOC0061",
+      "driver_id": "D002",
+      "document_type": "MEDICAL_CERT",
+      "version": 1,
+      "issue_date": "2022-01-13",
+      "expiration_date": "2024-01-13",
+      "status": "archived",
+      "source_file_url": "https://files.example.com/documinder/D002/medical_cert-v1.pdf",
+      "verified_at": "2022-01-14T10:00:00-08:00",
+      "verified_by": "compliance.reviewer@example.com"
+    }
+  ],
+  "settings": [
+    {
+      "business_timezone": "America/Los_Angeles",
+      "test_reference_date": "2026-10-15",
+      "preview_only": true,
+      "test_recipient": "documinder.test@example.com",
+      "reminder_from_name": "Documinder Compliance (Test)"
+    }
+  ],
+  "testing_events": [
+    {
+      "event_id": "T001",
+      "driver_id": "D001",
+      "test_type": "pre_employment",
+      "event_date": "2024-09-20",
+      "outcome": "completed",
+      "recorded_by": "compliance.reviewer@example.com"
+    },
+    {
+      "event_id": "T002",
+      "driver_id": "D003",
+      "test_type": "random",
+      "event_date": "2026-03-11",
+      "outcome": "completed",
+      "recorded_by": "compliance.reviewer@example.com"
+    },
+    {
+      "event_id": "T003",
+      "driver_id": "D007",
+      "test_type": "random",
+      "event_date": "2026-06-02",
+      "outcome": "completed",
+      "recorded_by": "compliance.reviewer@example.com"
+    }
+  ],
+  "expected_phase1": [
+    {
+      "driver_id": "D001",
+      "document_type": "CDL",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": true
+    },
+    {
+      "driver_id": "D001",
+      "document_type": "MEDICAL_CERT",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D001",
+      "document_type": "TWIC",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D001",
+      "document_type": "HAZMAT_ENDORSEMENT",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D001",
+      "document_type": "TANKER_ENDORSEMENT",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D001",
+      "document_type": "DOUBLES_TRIPLES_ENDORSEMENT",
+      "expected_state": "not_applicable",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D001",
+      "document_type": "SAFETY_TRAINING",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D002",
+      "document_type": "CDL",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D002",
+      "document_type": "MEDICAL_CERT",
+      "expected_state": "approaching_expiry",
+      "expected_stage": "D90",
+      "primary_fixture": true
+    },
+    {
+      "driver_id": "D002",
+      "document_type": "TWIC",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D002",
+      "document_type": "HAZMAT_ENDORSEMENT",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D002",
+      "document_type": "TANKER_ENDORSEMENT",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D002",
+      "document_type": "DOUBLES_TRIPLES_ENDORSEMENT",
+      "expected_state": "not_applicable",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D002",
+      "document_type": "SAFETY_TRAINING",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D003",
+      "document_type": "CDL",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D003",
+      "document_type": "MEDICAL_CERT",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D003",
+      "document_type": "TWIC",
+      "expected_state": "approaching_expiry",
+      "expected_stage": "D60",
+      "primary_fixture": true
+    },
+    {
+      "driver_id": "D003",
+      "document_type": "HAZMAT_ENDORSEMENT",
+      "expected_state": "not_applicable",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D003",
+      "document_type": "TANKER_ENDORSEMENT",
+      "expected_state": "not_applicable",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D003",
+      "document_type": "DOUBLES_TRIPLES_ENDORSEMENT",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D003",
+      "document_type": "SAFETY_TRAINING",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D004",
+      "document_type": "CDL",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D004",
+      "document_type": "MEDICAL_CERT",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D004",
+      "document_type": "TWIC",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D004",
+      "document_type": "HAZMAT_ENDORSEMENT",
+      "expected_state": "urgent",
+      "expected_stage": "D30",
+      "primary_fixture": true
+    },
+    {
+      "driver_id": "D004",
+      "document_type": "TANKER_ENDORSEMENT",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D004",
+      "document_type": "DOUBLES_TRIPLES_ENDORSEMENT",
+      "expected_state": "not_applicable",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D004",
+      "document_type": "SAFETY_TRAINING",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D005",
+      "document_type": "CDL",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D005",
+      "document_type": "MEDICAL_CERT",
+      "expected_state": "urgent",
+      "expected_stage": "D14",
+      "primary_fixture": true
+    },
+    {
+      "driver_id": "D005",
+      "document_type": "TWIC",
+      "expected_state": "not_applicable",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D005",
+      "document_type": "HAZMAT_ENDORSEMENT",
+      "expected_state": "not_applicable",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D005",
+      "document_type": "TANKER_ENDORSEMENT",
+      "expected_state": "not_applicable",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D005",
+      "document_type": "DOUBLES_TRIPLES_ENDORSEMENT",
+      "expected_state": "not_applicable",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D005",
+      "document_type": "SAFETY_TRAINING",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D006",
+      "document_type": "CDL",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D006",
+      "document_type": "MEDICAL_CERT",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D006",
+      "document_type": "TWIC",
+      "expected_state": "critical",
+      "expected_stage": "D7",
+      "primary_fixture": true
+    },
+    {
+      "driver_id": "D006",
+      "document_type": "HAZMAT_ENDORSEMENT",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D006",
+      "document_type": "TANKER_ENDORSEMENT",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D006",
+      "document_type": "DOUBLES_TRIPLES_ENDORSEMENT",
+      "expected_state": "not_applicable",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D006",
+      "document_type": "SAFETY_TRAINING",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D007",
+      "document_type": "CDL",
+      "expected_state": "expires_today",
+      "expected_stage": "D0",
+      "primary_fixture": true
+    },
+    {
+      "driver_id": "D007",
+      "document_type": "MEDICAL_CERT",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D007",
+      "document_type": "TWIC",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D007",
+      "document_type": "HAZMAT_ENDORSEMENT",
+      "expected_state": "expires_today",
+      "expected_stage": "D0",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D007",
+      "document_type": "TANKER_ENDORSEMENT",
+      "expected_state": "expires_today",
+      "expected_stage": "D0",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D007",
+      "document_type": "DOUBLES_TRIPLES_ENDORSEMENT",
+      "expected_state": "not_applicable",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D007",
+      "document_type": "SAFETY_TRAINING",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D008",
+      "document_type": "CDL",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D008",
+      "document_type": "MEDICAL_CERT",
+      "expected_state": "overdue",
+      "expected_stage": "OVERDUE",
+      "primary_fixture": true
+    },
+    {
+      "driver_id": "D008",
+      "document_type": "TWIC",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D008",
+      "document_type": "HAZMAT_ENDORSEMENT",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D008",
+      "document_type": "TANKER_ENDORSEMENT",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D008",
+      "document_type": "DOUBLES_TRIPLES_ENDORSEMENT",
+      "expected_state": "not_applicable",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D008",
+      "document_type": "SAFETY_TRAINING",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D009",
+      "document_type": "CDL",
+      "expected_state": "inactive_skipped",
+      "expected_stage": "",
+      "primary_fixture": true
+    },
+    {
+      "driver_id": "D009",
+      "document_type": "MEDICAL_CERT",
+      "expected_state": "inactive_skipped",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D009",
+      "document_type": "TWIC",
+      "expected_state": "inactive_skipped",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D009",
+      "document_type": "HAZMAT_ENDORSEMENT",
+      "expected_state": "inactive_skipped",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D009",
+      "document_type": "TANKER_ENDORSEMENT",
+      "expected_state": "inactive_skipped",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D009",
+      "document_type": "DOUBLES_TRIPLES_ENDORSEMENT",
+      "expected_state": "inactive_skipped",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D009",
+      "document_type": "SAFETY_TRAINING",
+      "expected_state": "inactive_skipped",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D010",
+      "document_type": "CDL",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D010",
+      "document_type": "MEDICAL_CERT",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D010",
+      "document_type": "TWIC",
+      "expected_state": "not_applicable",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D010",
+      "document_type": "HAZMAT_ENDORSEMENT",
+      "expected_state": "not_applicable",
+      "expected_stage": "",
+      "primary_fixture": true
+    },
+    {
+      "driver_id": "D010",
+      "document_type": "TANKER_ENDORSEMENT",
+      "expected_state": "not_applicable",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D010",
+      "document_type": "DOUBLES_TRIPLES_ENDORSEMENT",
+      "expected_state": "not_applicable",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D010",
+      "document_type": "SAFETY_TRAINING",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D011",
+      "document_type": "CDL",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D011",
+      "document_type": "MEDICAL_CERT",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D011",
+      "document_type": "TWIC",
+      "expected_state": "missing",
+      "expected_stage": "",
+      "primary_fixture": true
+    },
+    {
+      "driver_id": "D011",
+      "document_type": "HAZMAT_ENDORSEMENT",
+      "expected_state": "not_applicable",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D011",
+      "document_type": "TANKER_ENDORSEMENT",
+      "expected_state": "not_applicable",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D011",
+      "document_type": "DOUBLES_TRIPLES_ENDORSEMENT",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D011",
+      "document_type": "SAFETY_TRAINING",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D012",
+      "document_type": "CDL",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D012",
+      "document_type": "MEDICAL_CERT",
+      "expected_state": "invalid_date",
+      "expected_stage": "",
+      "primary_fixture": true
+    },
+    {
+      "driver_id": "D012",
+      "document_type": "TWIC",
+      "expected_state": "not_applicable",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D012",
+      "document_type": "HAZMAT_ENDORSEMENT",
+      "expected_state": "not_applicable",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D012",
+      "document_type": "TANKER_ENDORSEMENT",
+      "expected_state": "not_applicable",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D012",
+      "document_type": "DOUBLES_TRIPLES_ENDORSEMENT",
+      "expected_state": "not_applicable",
+      "expected_stage": "",
+      "primary_fixture": false
+    },
+    {
+      "driver_id": "D012",
+      "document_type": "SAFETY_TRAINING",
+      "expected_state": "current",
+      "expected_stage": "",
+      "primary_fixture": false
+    }
+  ]
+}
